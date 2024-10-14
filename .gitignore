@@ -1,0 +1,36 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Flask
+instance/
+.env
+.venv/
+venv/
+env/
+*.db
+*.sqlite3
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs
+.idea/
+.vscode/
+
+# Otros
+*.log
+*.pot
+*.py[cod]
+*.coverage
+.coverage
+*.egg
+*.egg-info/
+# backup files
+*~
+*.bak
