@@ -1,14 +1,21 @@
 from flask import Flask
-from routes import routes
-from flask_sqlalchemy import SQLAlchemy
-from modelos import db, User
+#from routes import routes
+from flask_restful import Api
+from vistas import VistaRegistro, VistaLogin, VistaTasks
+from flask_jwt_extended import JWTManager
+from datetime import timedelta
+
+from modelos import db
 from os import environ
 
 app = Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../../tutorial_canciones.db'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@flask_db:5432/flask_database'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/flask_database'
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY']='frase-secreta'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['PROPAGATE_EXCEPTIONS'] = True
+
 
 app_context = app.app_context()
 app_context.push()
@@ -16,11 +23,12 @@ app_context.push()
 db.init_app(app)
 db.create_all()
 
-# Registra las rutas del Blueprint
-app.register_blueprint(routes)
+api = Api(app)
+api.add_resource(VistaRegistro, '/api/auth/signup')
+api.add_resource(VistaLogin, '/api/auth/login')
+api.add_resource(VistaTasks, '/api/tasks')
 
-if __name__ == '__main__':
-    app.run(port=5000)
+jwt = JWTManager(app)
     
     
 

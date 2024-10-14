@@ -11,6 +11,17 @@ services:
       - DB_URL=${DB_URL}
     depends_on:
       - flask_db
+
+  tasks:
+    build:
+      context: .
+      dockerfile: /tasks/Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - DB_URL=${DB_URL}
+    depends_on:
+      - flask_db
   
   flask_db:
     container_name: flask_db

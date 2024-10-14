@@ -4,20 +4,21 @@ from autenticador import registrar_usuario, login, validate_token
 # Crea un Blueprint para las rutas
 routes = Blueprint('routes', __name__)
 
-@routes.route('/register', methods=['POST'])
+@routes.route('/api/auth/signup', methods=['POST'])
 def register_route():
     data = request.get_json()
     response, status_code = registrar_usuario(data)
     return jsonify(response), status_code
 
-@routes.route('/login', methods=['POST'])
+@routes.route('/api/auth/login', methods=['POST'])
 def login_route():
     user_data = request.get_json()
     response, status_code = login(user_data)
     return jsonify(response), status_code
 
-@routes.route('/upload', methods=['POST'])
-def upload_video():
+# Tasks
+@routes.route('/api/tasks', methods=['POST'])
+def create_task():
     auth_header = request.headers.get('Authorization')
     if validate_token(auth_header):
         # Simula el envío de información
