@@ -1,6 +1,6 @@
 from flask import Flask, send_from_directory
 from flask_restful import Api
-from vistas import VistaTasks, VistaTask
+from vistas import VistaTasks, VistaTask, VistaVideos
 from modelos import db
 from os import environ
 import os
@@ -21,6 +21,7 @@ db.init_app(app)
 api = Api(app)
 api.add_resource(VistaTasks, '/api/tasks')
 api.add_resource(VistaTask, '/api/tasks/<int:id_task>')
+api.add_resource(VistaVideos, '/api/videos')
 
 @app.route('/videos/<int:task_id>/<path:filename>', methods=['GET'])
 def uploaded_file(task_id, filename):

@@ -121,3 +121,33 @@ class VistaTask(Resource):
             return {"mensaje": "Task eliminada"}, 200
         
         return {"mensaje": "Task eliminada"}, 200
+    
+class VistaVideos(Resource):
+    
+    def get(self):
+        
+        max_results = request.args.get('max', type=int) 
+        order = request.args.get('order', type=int)
+        
+        query = Task.query
+        
+        if order == 1:
+            query = query.order_by(Task.id.desc())  # Descendente
+        else:
+            query = query.order_by(Task.id.asc())  # Ascendente
+            
+        if max_results:
+            query = query.limit(max_results)
+            
+        tasks = query.all()
+        
+        videos_json = [
+            {
+                "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
+                "url_video_uploaded": task.url_video_original,
+                "url_video_processed": task.url_video_editado,
+            }
+            for task in tasks
+        ]
+        
+        return videos_json, 200

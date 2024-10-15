@@ -10,8 +10,8 @@ import requests
 
 # Instancia del esquema
 user_schema = UserSchema()
-#tasks_url = 'http://tasks:5001/api/tasks'
-tasks_url = 'http://localhost:5001/api/tasks'
+#tasks_url = 'http://tasks:5001/'
+tasks_url = 'http://localhost:5001/'
 
 
 def validar_contrasena(contrasena):
@@ -107,7 +107,7 @@ class VistaTasks(Resource):
             'current_user': current_user
         }
         
-        response = requests.get(tasks_url, params=params, data=data)
+        response = requests.get(f'{tasks_url}api/tasks', params=params, data=data)
         
         if response.status_code == 200:
            result = response.json()
@@ -137,7 +137,7 @@ class VistaTasks(Resource):
         }
         
         files = {'file': (file.filename, file.stream, file.content_type)}
-        response = requests.post(tasks_url, files=files, data=data)
+        response = requests.post(f'{tasks_url}api/tasks', files=files, data=data)
         print(response)
         if response.status_code == 200:
             result = response.json()
@@ -154,14 +154,24 @@ class VistaTask(Resource):
     @jwt_required()
     def get(self, id_task):
         
-        response = requests.get(f'{tasks_url}/{id_task}')
+        response = requests.get(f'{tasks_url}api/tasks/{id_task}')
         
         return response.json(), response.status_code
     
     @jwt_required()
     def delete(self, id_task):
         
-        response = requests.delete(f'{tasks_url}/{id_task}')
+        response = requests.delete(f'{tasks_url}api/tasks/{id_task}')
+        
+        return response.json(), response.status_code
+    
+class VistaVideos(Resource):
+    
+    def get(self):
+        
+        params = request.args.to_dict()
+        
+        response = requests.get(f'{tasks_url}/api/videos', params=params)
         
         return response.json(), response.status_code
         
