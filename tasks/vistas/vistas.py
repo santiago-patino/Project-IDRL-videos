@@ -1,12 +1,58 @@
-from flask import request, current_app
-from modelos import db, User, Task
+from flask import request, current_app, jsonify
+from modelos import db, Task, TaskSchema
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 import os
-#from app import app
+from datetime import datetime
 from werkzeug.utils import secure_filename
+
+task_schema = TaskSchema()
     
 class VistaTasks(Resource):
+    
+    def get(self):
+        
+        current_user = request.form.get('current_user')
+        
+        # Obtener parámetros de consulta
+        max_results = request.args.get('max', type=int)  # Convertir a entero o None
+        order = request.args.get('order', type=int)  # Convertir a entero o None
+        
+        query = Task.query.filter_by(user=current_user)
+        
+        #tasks = Task.query.filter_by(user=current_user).all()
+        
+        # Aplicar ordenamiento
+        if order == 1:
+            query = query.order_by(Task.id.desc())  # Descendente
+        else:
+            query = query.order_by(Task.id.asc())  # Ascendente
+            
+        # Aplicar límite si se especifica
+        if max_results:
+            query = query.limit(max_results)
+            
+        tasks = query.all()
+        
+        tasks_json = [
+            {
+                "id": task.id,
+                "user": task.user,
+                "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
+                "status": task.status,
+                "url_video_original": task.url_video_original,
+                "url_video_editado": task.url_video_editado,
+            }
+            for task in tasks
+        ]
+        
+        return tasks_json
+        
+        tasks_json = task_schema.dump(tasks, many=True)
+        
+      
+        
+        return tasks_json, 200
     
     def post(self): 
        

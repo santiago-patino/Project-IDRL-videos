@@ -10,6 +10,8 @@ import requests
 
 # Instancia del esquema
 user_schema = UserSchema()
+#tasks_url = 'http://tasks:5001/api/tasks'
+tasks_url = 'http://localhost:5001/api/tasks'
 
 
 def validar_contrasena(contrasena):
@@ -95,6 +97,29 @@ class VistaLogin(Resource):
 class VistaTasks(Resource):
     
     @jwt_required()
+    def get(self):
+        
+        current_user = get_jwt_identity()
+        
+        params = request.args.to_dict()
+        
+        data = {
+            'current_user': current_user
+        }
+        
+        response = requests.get(tasks_url, params=params, data=data)
+        
+        if response.status_code == 200:
+           result = response.json()
+           return {
+               'message': 'File uploaded successfully and sent to microservice',
+               'current_user': current_user,
+               'microservice_response': result
+           }, 200
+        else:
+            return {'message': 'File uploaded but failed to send to microservice', 'error': response.text}, 500
+    
+    @jwt_required()
     def post(self):
         
         # Verifica si se ha enviado un archivo
@@ -105,8 +130,6 @@ class VistaTasks(Resource):
         
         # Guarda el archivo en la carpeta 'uploads'
         #file.save(os.path.join('../uploads', file.filename))
-        
-        tasks_url = 'http://tasks:5001/api/tasks'
         
         current_user = get_jwt_identity()
         data = {
