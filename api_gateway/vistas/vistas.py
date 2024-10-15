@@ -149,8 +149,15 @@ class VistaTasks(Resource):
         else:
             return {'message': 'File uploaded but failed to send to microservice', 'error': response.text}, 500
         
-        #return {'current_user': current_user}, 200
+class VistaTask(Resource):
+    
+    @jwt_required()
+    def get(self, id_task):
         
-       
+        response = requests.get(f'{tasks_url}/{id_task}')
+        
+        return response.json(), response.status_code
+        
+    
        
     

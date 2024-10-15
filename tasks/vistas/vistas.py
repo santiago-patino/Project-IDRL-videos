@@ -47,12 +47,6 @@ class VistaTasks(Resource):
         ]
         
         return tasks_json
-        
-        tasks_json = task_schema.dump(tasks, many=True)
-        
-      
-        
-        return tasks_json, 200
     
     def post(self): 
        
@@ -97,3 +91,12 @@ class VistaTasks(Resource):
             }
         }, 200
     
+class VistaTask(Resource):
+    
+    def get(self, id_task):
+        task = Task.query.get(id_task)
+        
+        if task is None:
+            return {"message": "Task no encontrada"}, 404
+        
+        return task_schema.dump(task), 200

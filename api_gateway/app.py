@@ -1,7 +1,7 @@
 from flask import Flask
 #from routes import routes
 from flask_restful import Api
-from vistas import VistaRegistro, VistaLogin, VistaTasks
+from vistas import VistaRegistro, VistaLogin, VistaTasks, VistaTask
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 
@@ -28,6 +28,7 @@ api = Api(app)
 api.add_resource(VistaRegistro, '/api/auth/signup')
 api.add_resource(VistaLogin, '/api/auth/login')
 api.add_resource(VistaTasks, '/api/tasks')
+api.add_resource(VistaTask, '/api/tasks/<int:id_task>')
 
 jwt = JWTManager(app)
     
