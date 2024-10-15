@@ -9,7 +9,6 @@ build/
 
 # Flask
 instance/
-.env
 .venv/
 venv/
 env/
@@ -34,3 +33,5 @@ env/
 # backup files
 *~
 *.bak
+
+*/videos
