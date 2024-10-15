@@ -157,6 +157,13 @@ class VistaTask(Resource):
         response = requests.get(f'{tasks_url}/{id_task}')
         
         return response.json(), response.status_code
+    
+    @jwt_required()
+    def delete(self, id_task):
+        
+        response = requests.delete(f'{tasks_url}/{id_task}')
+        
+        return response.json(), response.status_code
         
     
        

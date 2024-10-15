@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
+import shutil
 
 task_schema = TaskSchema()
     
@@ -100,3 +101,23 @@ class VistaTask(Resource):
             return {"message": "Task no encontrada"}, 404
         
         return task_schema.dump(task), 200
+    
+    def delete(self, id_task):
+        task = Task.query.get(id_task)
+        
+        if task is None:
+            return {"message": "Task no encontrada"}, 404
+        
+        directory_task_files = os.path.join('videos', str(task.id))
+        
+        if os.path.exists(directory_task_files):
+            # Eliminar la carpeta y su contenido
+            shutil.rmtree(directory_task_files)
+            
+            db.session.delete(task)
+            db.session.commit()
+            db.session.commit()
+        else:
+            return {"mensaje": "Task eliminada"}, 200
+        
+        return {"mensaje": "Task eliminada"}, 200
