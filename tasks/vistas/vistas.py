@@ -6,9 +6,14 @@ import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import shutil
+from celery import Celery
 
 task_schema = TaskSchema()
-    
+
+@celery.task(name="process.video")
+def editar_video(task_id):
+    pass
+
 class VistaTasks(Resource):
     
     def get(self):
@@ -75,11 +80,16 @@ class VistaTasks(Resource):
             
             file.save(os.path.join('videos/' + str(new_task.id), new_file_name))
             
+            args = (new_task.id,)
+            editar_video.apply_async(args)
+            
             video_url = f"http://127.0.0.1:5001/videos/{str(new_task.id)}/{new_file_name}"
             
             new_task.url_video_original = video_url
             
        db.session.commit()
+       
+       
        
        return {
             'message': 'Tarea creada exitosamente',

@@ -6,3 +6,5 @@ psycopg2-binary
 flask-restful
 marshmallow_sqlalchemy
 flask_jwt_extended
+celery
+redis
