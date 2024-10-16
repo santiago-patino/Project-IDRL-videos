@@ -11,11 +11,14 @@
 		{
 			"name": "Login",
 			"request": {
+				"auth": {
+					"type": "bearer"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"JuanDiaz\",\r\n    \"password\": \"Passwd8043\"\r\n}",
+					"raw": "{\r\n    \"username\": \"JuanDiaz\",\r\n    \"password\": \"Passwd8043\" \r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -33,7 +36,7 @@
 						"login"
 					]
 				},
-				"description": "Permite recuperar el token de autorización para consumir los recursos del API suministrando un nombre de usuario y una contraseña correcta de una cuenta registrada"
+				"description": "Permite iniciar sesión y obtener el token de autorización para consumir los recursos del API, suministrando el nombre de usuario y la contraseña deuna cuenta previamente registrada."
 			},
 			"response": []
 		},
@@ -44,7 +47,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"JuanDiaz\",\r\n    \"password\": \"Passwd8043\",\r\n    \"password_again\": \"Passwd8043\",\r\n    \"email\": \"pruebas_nubepruebas@gmail.com\"\r\n}",
+					"raw": "{\r\n    \"username\": \"JuanDiaz\",\r\n    \"password1\": \"Passwd8043\",\r\n    \"password2\": \"Passwd8043\",\r\n    \"email\": \"pruebas_nubepruebas@gmail.com\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -62,13 +65,16 @@
 						"signup"
 					]
 				},
-				"description": "> Permite crear una cuenta de usuario, con los campos usuario, correo electrónico y contraseña. El usuario y el correo electrónico deben ser únicos en la plataforma, la contraseña debe seguir unos lineamientos mínimos de seguridad, además debe ser solicitada dos veces para que el usuario confirme que ingresa la contraseña correctamente."
+				"description": "> Permite crear una cuenta con los campos para nombre de usuario, correo electrónico y contraseña. El nombre y el correo electrónico deben serúnicos en la plataforma, mientras que la contraseña debe seguir unos lineamientos mínimos de seguridad. Adicionalmente, la clave debe sersolicitada dos veces para que el usuario confirme que la ingresa de forma correcta."
 			},
 			"response": []
 		},
 		{
 			"name": "Post Tasks",
 			"request": {
+				"auth": {
+					"type": "bearer"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -87,16 +93,23 @@
 					]
 				},
 				"url": {
-					"raw": "{{base_url}}/api/tasks",
+					"raw": "{{base_url}}/api/tasks?fileName =name",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"api",
 						"tasks"
+					],
+					"query": [
+						{
+							"key": "fileName ",
+							"value": "name",
+							"description": "Archivo de vídeo a procesar"
+						}
 					]
 				},
-				"description": "> Los campos id, timeStamp, y status se generan de forma automática en la aplicación. El id es un campo único y auto-numérico. El timeStamp corresponde a la fecha y hora de carga del archivo. Finalmente, el status corresponde a la notificación en la aplicación si el archivo ya fue o no procesado. Para los archivos cargados su estado por defecto es uploaded, en el momento de realizar la conversión este campo pasa a processed."
+				"description": "Permite crear una nueva tarea de edición de video. El usuario requiere autorización.\n\nLos campos id, timeStamp, y status se generan de forma automática en la aplicación. El ID es un campo único y auto-numérico, no necesariamente un entero. Por su lado, el TimeStamp señala la fecha y hora de carga del archivo. Finalmente, el status corresponde a la notificación en la aplicación para indicar si el video ya fue procesado o no. Para los archivos cargados su estado por defecto es uploaded, en el momento de culminar la edición este atributo cambia a processed."
 			},
 			"response": []
 		},
@@ -121,16 +134,17 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/tasks",
+					"raw": "{{base_url}}/api/tasks/{{id_task}}",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"api",
-						"tasks"
+						"tasks",
+						"{{id_task}}"
 					]
 				},
-				"description": "Permite recuperar todas las tareas de conversión de un usuario autorizado en la aplicación."
+				"description": "Permite recuperar la información de una tarea concreta perteneciente a un usuario, para lo cual se requiere autorización."
 			},
 			"response": []
 		},
@@ -155,16 +169,33 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/tasks",
+					"raw": "{{base_url}}/api/tasks?max=20&order=0&id_task=1",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"api",
 						"tasks"
+					],
+					"query": [
+						{
+							"key": "max",
+							"value": "20",
+							"description": "Parámetro opcional que filtra la cantidad de resultados de una\nconsulta. \n"
+						},
+						{
+							"key": "order",
+							"value": "0",
+							"description": "Especifica si los resultados se ordenan de forma ascendente (0)\no de forma descendente (1) según el ID de la tarea."
+						},
+						{
+							"key": "id_task",
+							"value": "1",
+							"description": "Id de la tarea"
+						}
 					]
 				},
-				"description": "Permite recuperar el archivo original o procesado.\n\nEn el campo {{name_file}} se debe colocar el nombre del archivo a descargar."
+				"description": "Permite consultar la información de todos los vídeos disponibles en laaplicación."
 			},
 			"response": []
 		},
