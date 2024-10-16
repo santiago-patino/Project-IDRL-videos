@@ -1,0 +1,228 @@
+{
+	"info": {
+		"_postman_id": "82558694-5b75-4556-b688-3f7b44ae2d8c",
+		"name": "Colección FVP Grupo 10",
+		"description": "### API para la aplicación FVP Dron Racing League\n\n1. La API se puede utilizar en cualquier aplicación o manejador de APIs, se sugiere la utilización de POSTMAN.\n    \n\n### Consultas desde la API\n\n1. Creación de un usuario: POST `/api/auth/signup`\n    \n2. Ingreso de usuario: POST `/api/auth/login`\n    \n3. Ver todas las tareas de un usuario: GET `/api/tasks`\n    \n4. Crear una tarea de un usuario: POST `/api/tasks`\n    \n5. Ver una tarea específica: GET `/api/tasks/`\n    \n6. Actualizar una tarea específica: PUT `/api/tasks/`\n    \n7. Eliminar una tarea específica: DELETE `/api/tasks/`\n    \n8. Descargar un archivo GET `/api/videos/`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39041719",
+		"_collection_link": "https://misw-desarrollo-nube.postman.co/workspace/b977a753-e109-49d1-b2d7-04c41cb14183/collection/39041719-82558694-5b75-4556-b688-3f7b44ae2d8c?action=share&source=collection_link&creator=39041719"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"JuanDiaz\",\r\n    \"password\": \"Passwd8043\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Permite recuperar el token de autorización para consumir los recursos del API suministrando un nombre de usuario y una contraseña correcta de una cuenta registrada"
+			},
+			"response": []
+		},
+		{
+			"name": "signup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"JuanDiaz\",\r\n    \"password\": \"Passwd8043\",\r\n    \"password_again\": \"Passwd8043\",\r\n    \"email\": \"pruebas_nubepruebas@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"signup"
+					]
+				},
+				"description": "> Permite crear una cuenta de usuario, con los campos usuario, correo electrónico y contraseña. El usuario y el correo electrónico deben ser únicos en la plataforma, la contraseña debe seguir unos lineamientos mínimos de seguridad, además debe ser solicitada dos veces para que el usuario confirme que ingresa la contraseña correctamente."
+			},
+			"response": []
+		},
+		{
+			"name": "Post Tasks",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "fileName",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "newFileName",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/tasks",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"tasks"
+					]
+				},
+				"description": "> Los campos id, timeStamp, y status se generan de forma automática en la aplicación. El id es un campo único y auto-numérico. El timeStamp corresponde a la fecha y hora de carga del archivo. Finalmente, el status corresponde a la notificación en la aplicación si el archivo ya fue o no procesado. Para los archivos cargados su estado por defecto es uploaded, en el momento de realizar la conversión este campo pasa a processed."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Tasks",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/tasks",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"tasks"
+					]
+				},
+				"description": "Permite recuperar todas las tareas de conversión de un usuario autorizado en la aplicación."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Videos",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/tasks",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"tasks"
+					]
+				},
+				"description": "Permite recuperar el archivo original o procesado.\n\nEn el campo {{name_file}} se debe colocar el nombre del archivo a descargar."
+			},
+			"response": []
+		},
+		{
+			"name": "Put Tasks",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "fileName",
+							"value": "fileName_1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/tasks/{{id_task}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"tasks",
+						"{{id_task}}"
+					]
+				},
+				"description": "Permite actualizar la información de una tarea en la aplicación, le facilita al usuario actualizar el video de un archivo ya disponible en la aplicación. El usuario requiere autorización.\n\nEn el campo {{id_task}} se debe colocar el id de la tarea a editar."
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Tasks",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/tasks/{{id_task}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"tasks",
+						"{{id_task}}"
+					]
+				},
+				"description": "Permite eliminar una tarea en la aplicación. El usuario requiere autorización.\n\nEn el campo {{id_task}} se debe colocar el id de la tarea a consultar."
+			},
+			"response": []
+		}
+	]
+}
