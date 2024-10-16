@@ -27,13 +27,29 @@ def editar_video(task_id):
         if os.path.exists(directory):
             image_path = "../images/logo.png"
             video_clip = VideoFileClip(original_file_path)
-            image_logo = ImageClip(image_path).set_duration(3).resize(video_clip.size)
-            final_video = concatenate_videoclips([image_logo, video_clip, image_logo])
+            
+            video_aspect_ratio = 16 / 9
+            video_width, video_height = video_clip.size
+            new_width = video_width
+            new_height = int(new_width / video_aspect_ratio)
+            
+            if new_height > video_height:
+                new_height = video_height
+                new_width = int(new_height * video_aspect_ratio)
+                
+            cropped_video = video_clip.crop(width=new_width, height=new_height, x_center=video_width/2, y_center=video_height/2)
+            
+            max_duration = 20
+            if cropped_video.duration > max_duration:
+                cropped_video = cropped_video.subclip(0, max_duration)
+            
+            image_logo = ImageClip(image_path).set_duration(3).resize(cropped_video.size)
+            final_video = concatenate_videoclips([image_logo, cropped_video, image_logo])
                 
             new_file_name = filename.replace('original', 'edited')
             edited_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/' + str(task_id), new_file_name)
                 
-            final_video.write_videofile(edited_file_path, fps=video_clip.fps, codec='libx264')
+            final_video.write_videofile(edited_file_path, fps=cropped_video.fps, codec='libx264')
             
             task.status = "processed"
             new_video_url = f"http://127.0.0.1:5001/videos/{str(task.id)}/{new_file_name}"

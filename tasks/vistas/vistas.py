@@ -7,6 +7,10 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 import shutil
 from celery import Celery
+from moviepy.editor import VideoFileClip
+
+# Lista de tipos MIME válidos para videos
+ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 
 celery_app = Celery('task', broker='redis://localhost:6379/0')
 
@@ -57,20 +61,53 @@ class VistaTasks(Resource):
         return tasks_json
     
     def post(self): 
+        
+        current_user = request.form.get('current_user')
        
-       current_user = request.form.get('current_user')
+        file = request.files['file']
        
-       new_task = Task(
-           user=current_user,
-           status='uploaded',
-       )
+        if not file:
+            return {"error": "No file uploaded"}, 400
+        
+        if file.mimetype not in ALLOWED_VIDEO_MIME_TYPES:
+            return {"error": "Invalid file type. Please upload a video file."}, 400
+        
+        # Guardar temporalmente el archivo para analizarlo
+        temp_file_path = os.path.join('/tmp', file.filename)
+        file.save(temp_file_path)
+        
+        # Verificar la duración del video usando moviepy
+        try:
+            video_clip = VideoFileClip(temp_file_path)
+            video_duration = video_clip.duration  # Duración en segundos
+            
+            # Validar que la duración esté entre 20 y 60 segundos
+            if video_duration < 20:
+                return {"error": "Video too short. Minimum duration is 20 seconds."}, 400
+            elif video_duration > 60:
+                return {"error": "Video too long. Maximum duration is 60 seconds."}, 400
+            
+            # Crear la nueva tarea si la duración es válida
+            new_task = Task(
+            user=current_user,
+                status='uploaded',
+            )
        
-       db.session.add(new_task)
-       db.session.commit()
+            db.session.add(new_task)
+            db.session.commit()
+
+        except Exception as e:
+            return {"error": f"Error processing video: {str(e)}"}, 500
+
+        finally:
+            # Cerrar y liberar recursos de video_clip
+            video_clip.close()
+            # Eliminar el archivo temporal
+            if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
        
-       file = request.files['file']
-       print(request.files)
-       if file:
+       
+        if file:
 
             # Crear el directorio para guardar el archivo, si no existe
             upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
@@ -90,11 +127,9 @@ class VistaTasks(Resource):
             
             new_task.url_video_original = video_url
             
-       db.session.commit()
+        db.session.commit()
        
-       
-       
-       return {
+        return {
             'message': 'Tarea creada exitosamente',
             'task': {
                 'id': new_task.id,
