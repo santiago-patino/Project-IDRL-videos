@@ -12,7 +12,7 @@ class TestVistaLogin(TestCase):
         self.data_factory = Faker()
         self.client = app.test_client()
 
-        self.username = self.data_factory.user_name()[0]
+        self.username = self.data_factory.user_name()
         self.password = self.data_factory.password(length=10, special_chars=True,digits=True)
 
          ## Mock usuario con username invalido.
@@ -30,6 +30,7 @@ class TestVistaLogin(TestCase):
             data=json.dumps(nuevo_usuario),
             headers={'Content-Type': 'application/json'}
         )
+       
 
         return super().setUp()
      
