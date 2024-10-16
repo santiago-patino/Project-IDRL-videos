@@ -1,5 +1,5 @@
 from celery import Celery
-from modelos import Task
+from modelos import db, Task
 import app
 import requests
 from flask import current_app
@@ -34,6 +34,12 @@ def editar_video(task_id):
             edited_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/' + str(task_id), new_file_name)
                 
             final_video.write_videofile(edited_file_path, fps=video_clip.fps, codec='libx264')
+            
+            task.status = "processed"
+            new_video_url = f"http://127.0.0.1:5001/videos/{str(task.id)}/{new_file_name}"
+            task.url_video_editado = new_video_url
+            
+            db.session.commit()
     
         else:
             print(f"Directorio no existe: {task_id}")
