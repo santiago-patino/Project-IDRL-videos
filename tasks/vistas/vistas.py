@@ -8,11 +8,12 @@ from werkzeug.utils import secure_filename
 import shutil
 from celery import Celery
 from moviepy.editor import VideoFileClip
+import shutil
 
 # Lista de tipos MIME válidos para videos
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 
-celery_app = Celery('task', broker='redis://localhost:6379/0')
+celery_app = Celery('task', broker='redis://redis:6379/0')
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):
@@ -72,60 +73,48 @@ class VistaTasks(Resource):
         if file.mimetype not in ALLOWED_VIDEO_MIME_TYPES:
             return {"error": "Invalid file type. Please upload a video file."}, 400
         
-        # Guardar temporalmente el archivo para analizarlo
-        temp_file_path = os.path.join('/tmp', file.filename)
+        temp_file_path = os.path.join('/tmp', secure_filename(file.filename))
         file.save(temp_file_path)
         
-        # Verificar la duración del video usando moviepy
         try:
-            video_clip = VideoFileClip(temp_file_path)
-            video_duration = video_clip.duration  # Duración en segundos
+            with VideoFileClip(temp_file_path) as video:
+                duration = video.duration  # Duración en segundos
+                
+            if duration < 20 or duration > 60:
+                os.remove(temp_file_path)  # Elimina el archivo si no cumple con las condiciones
+                return {'error': 'Video duration must be between 20 and 60 seconds'}, 400
             
-            # Validar que la duración esté entre 20 y 60 segundos
-            if video_duration < 20:
-                return {"error": "Video too short. Minimum duration is 20 seconds."}, 400
-            elif video_duration > 60:
-                return {"error": "Video too long. Maximum duration is 60 seconds."}, 400
-            
-            # Crear la nueva tarea si la duración es válida
-            new_task = Task(
-            user=current_user,
-                status='uploaded',
-            )
-       
-            db.session.add(new_task)
-            db.session.commit()
-
         except Exception as e:
-            return {"error": f"Error processing video: {str(e)}"}, 500
-
-        finally:
-            # Cerrar y liberar recursos de video_clip
-            video_clip.close()
-            # Eliminar el archivo temporal
-            if os.path.exists(temp_file_path):
+             if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
+                return {'error': str(e)}, 400
+            
+        new_task = Task(
+            user=current_user,
+            status='uploaded',
+        )
        
-       
-        if file:
-
-            # Crear el directorio para guardar el archivo, si no existe
-            upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
-            os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
+        db.session.add(new_task)
+        db.session.commit()
             
-            filename = secure_filename(file.filename)
-            file_extension = os.path.splitext(filename)[1]
-            new_file_name = f"original{file_extension}"
+        # Crear el directorio para guardar el archivo, si no existe
+        upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
+        os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
             
-            file.save(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/' + str(new_task.id), new_file_name))
+        filename = secure_filename(file.filename)
+        file_extension = os.path.splitext(filename)[1]
+        new_file_name = f"original{file_extension}"
             
-            #Enviar cola
-            args = (new_task.id,)
-            editar_video.apply_async(args, persistent=True)
+        final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', new_file_name))
+        shutil.move(temp_file_path, final_file_path)
             
-            video_url = f"http://127.0.0.1:5001/videos/{str(new_task.id)}/{new_file_name}"
+        #Enviar cola
+        args = (new_task.id,)
+        editar_video.apply_async(args, persistent=True)
             
-            new_task.url_video_original = video_url
+        video_url = f"http://127.0.0.1:5001/videos/{str(new_task.id)}/{new_file_name}"
+            
+        new_task.url_video_original = video_url
             
         db.session.commit()
        
@@ -156,19 +145,16 @@ class VistaTask(Resource):
         if task is None:
             return {"message": "Task no encontrada"}, 404
         
-        directory_task_files = os.path.join('videos', str(task.id))
+        db.session.delete(task)
+        db.session.commit()
+        
+        directory_task_files = os.path.join(current_app.config["UPLOAD_FOLDER"], str(task.id))
         
         if os.path.exists(directory_task_files):
             # Eliminar la carpeta y su contenido
             shutil.rmtree(directory_task_files)
-            
-            db.session.delete(task)
-            db.session.commit()
-            db.session.commit()
-        else:
-            return {"mensaje": "Task eliminada"}, 200
         
-        return {"mensaje": "Task eliminada"}, 200
+        return {"mensaje": f"Task {task.id} eliminada"}, 200
     
 class VistaVideos(Resource):
     

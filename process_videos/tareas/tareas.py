@@ -9,7 +9,7 @@ from moviepy.editor import VideoFileClip, ImageClip, concatenate_videoclips, Com
 import imageio
 #from PIL import Image
 
-celery_app = Celery('task', broker='redis://localhost:6379/0')
+celery_app = Celery('task', broker='redis://redis:6379/0')
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):

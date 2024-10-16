@@ -22,6 +22,28 @@ services:
       - DB_URL=${DB_URL}
     depends_on:
       - flask_db
+    volumes:
+      - ./videos:/app/videos
+
+  redis:
+    image: "redis:latest"
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  process_videos:
+    build:
+      context: .
+      #command: celery -A tareas worker -l info
+      dockerfile: /process_videos/Dockerfile
+    environment:
+      - DB_URL=${DB_URL}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - flask_db
+      - redis
+    volumes:
+      - ./videos:/app/videos
   
   flask_db:
     container_name: flask_db
