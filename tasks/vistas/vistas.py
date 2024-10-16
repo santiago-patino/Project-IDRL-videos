@@ -8,11 +8,13 @@ from werkzeug.utils import secure_filename
 import shutil
 from celery import Celery
 
-task_schema = TaskSchema()
+celery_app = Celery('task', broker='redis://localhost:6379/0')
 
-@celery.task(name="process.video")
+@celery_app.task(name="process.video")
 def editar_video(task_id):
     pass
+
+task_schema = TaskSchema()
 
 class VistaTasks(Resource):
     
@@ -80,8 +82,9 @@ class VistaTasks(Resource):
             
             file.save(os.path.join('videos/' + str(new_task.id), new_file_name))
             
+            #Enviar cola
             args = (new_task.id,)
-            editar_video.apply_async(args)
+            editar_video.apply_async(args, persistent=True)
             
             video_url = f"http://127.0.0.1:5001/videos/{str(new_task.id)}/{new_file_name}"
             
@@ -135,6 +138,8 @@ class VistaTask(Resource):
 class VistaVideos(Resource):
     
     def get(self):
+        
+        editar_video.apply_async((27,), persistent=True)
         
         max_results = request.args.get('max', type=int) 
         order = request.args.get('order', type=int)
