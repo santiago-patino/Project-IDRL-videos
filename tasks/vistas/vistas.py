@@ -73,14 +73,14 @@ class VistaTasks(Resource):
        if file:
 
             # Crear el directorio para guardar el archivo, si no existe
-            upload_directory = os.path.join('videos', str(new_task.id))
+            upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
             os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
             
             filename = secure_filename(file.filename)
             file_extension = os.path.splitext(filename)[1]
             new_file_name = f"original_{new_task.id}{file_extension}"
             
-            file.save(os.path.join('videos/' + str(new_task.id), new_file_name))
+            file.save(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/' + str(new_task.id), new_file_name))
             
             #Enviar cola
             args = (new_task.id,)
@@ -139,7 +139,7 @@ class VistaVideos(Resource):
     
     def get(self):
         
-        editar_video.apply_async((27,), persistent=True)
+        editar_video.apply_async((38,), persistent=True)
         
         max_results = request.args.get('max', type=int) 
         order = request.args.get('order', type=int)

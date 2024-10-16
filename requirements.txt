@@ -8,3 +8,8 @@ marshmallow_sqlalchemy
 flask_jwt_extended
 celery
 redis
+moviepy==1.0.3
+imageio
+imageio[opencv]
+imageio[pyav]
+Pillow==9.5.0

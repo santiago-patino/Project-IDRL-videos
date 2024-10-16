@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:54
 #app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'videos')
+UPLOAD_FOLDER = os.path.join(app.root_path, '../videos')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 app_context = app.app_context()
