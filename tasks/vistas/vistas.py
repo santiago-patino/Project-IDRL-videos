@@ -9,6 +9,7 @@ import shutil
 from celery import Celery
 from moviepy.editor import VideoFileClip
 import shutil
+import pytz
 
 # Lista de tipos MIME válidos para videos
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
@@ -45,14 +46,17 @@ class VistaTasks(Resource):
             
         tasks = query.all()
         
+        
+        
         tasks_json = [
             {
                 "id": task.id,
-                "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
+                "timeStamp": task.timeStamp.astimezone(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(task.timeStamp, datetime) else None,
                 "upload_by": { "id": task.user_data.id, "username": task.user_data.username },
                 "processed": task.status == "processed",
                 "nombre_archivo": task.nombre_video,
-                "url_video": task.url_video,
+                **({"url_video": task.url_video} if task.status == "processed" else {}),
             }
             for task in tasks
         ]
@@ -83,7 +87,7 @@ class VistaTasks(Resource):
              if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
                 return {'error': str(e)}, 400
-            
+                    
         new_task = Task(
             user_id=current_user,
             status='uploaded',
@@ -125,7 +129,8 @@ class VistaTask(Resource):
         tasks_json = [
             {
                 "id": task.id,
-                "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
+                "timeStamp": task.timeStamp.astimezone(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(task.timeStamp, datetime) else None,
                 "upload_by": { "id": task.user_data.id, "username": task.user_data.username },
                 "processed": task.status == "processed",
                 "nombre_archivo": task.nombre_video,
@@ -147,16 +152,21 @@ class VistaTask(Resource):
         if task is None:
             return {"message": "Task no encontrada"}, 404
         
-        db.session.delete(task)
-        db.session.commit()
+        if task.status == "processed":
+            db.session.delete(task)
+            db.session.commit()
         
-        directory_task_files = os.path.join(current_app.config["UPLOAD_FOLDER"], str(task.id))
+            directory_task_files = os.path.join(current_app.config["UPLOAD_FOLDER"], str(task.id))
         
-        if os.path.exists(directory_task_files):
-            # Eliminar la carpeta y su contenido
-            shutil.rmtree(directory_task_files)
+            if os.path.exists(directory_task_files):
+                # Eliminar la carpeta y su contenido
+                shutil.rmtree(directory_task_files)
         
-        return {"mensaje": f"Task {task.id} eliminada"}, 200
+            return {"mensaje": f"Task {task.id} eliminada"}, 200
+        else:
+            return {"mensaje": f"Task {task.id} aun no ha sido procesada"}, 200
+        
+        
     
 class VistaVideos(Resource):
     
@@ -168,9 +178,9 @@ class VistaVideos(Resource):
         query = Video.query
         
         if order == 1:
-            query = query.order_by(Video.id.desc())  # Descendente
+            query = query.order_by(Video.task_id.desc())  # Descendente
         else:
-            query = query.order_by(Video.id.asc())  # Ascendente
+            query = query.order_by(Video.task_id.asc())  # Ascendente
             
         if max_results:
             query = query.limit(max_results)
@@ -179,12 +189,16 @@ class VistaVideos(Resource):
         
         videos_json = [
             {
+                "id": video.id,
+                "id_task": video.task_data.id,
+                "upload_by": { "id": video.task_data.user_data.id, "username": video.task_data.user_data.username },
                 "nombre_video": video.task_data.nombre_video,
-                "timeStamp": video.task_data.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(video.task_data.timeStamp, datetime) else None,
+                "timeStamp": video.task_data.timeStamp.astimezone(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(video.task_data.timeStamp, datetime) else None,
                 "url_video": video.task_data.url_video,
-                "calificacion": video.calificacion
+                "calificacion": video.calificacion,
             }
-            for video in videos
+            for video in videos if video.task_data.status == "processed"
         ]
         
         return videos_json, 200
