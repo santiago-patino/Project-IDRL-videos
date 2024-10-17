@@ -23,12 +23,6 @@ class Task(db.Model):
     nombre_video = db.Column(db.String(255), nullable=True)
     url_video = db.Column(db.String(255), nullable=True)
     user_data = db.relationship('User', back_populates='tasks')
-    video = db.relationship('Video', back_populates='task_data', lazy=True)
-    
-class Video(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
-    task_data = db.relationship('Task', back_populates='video')
     calificacion = db.Column(db.Integer, nullable=True, default=0)
     
 class UserSchema(SQLAlchemyAutoSchema):
@@ -40,11 +34,5 @@ class UserSchema(SQLAlchemyAutoSchema):
 class TaskSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Task
-        include_relationships = True
-        load_instance = True
-        
-class VideoSchema(SQLAlchemyAutoSchema):
-    class Meta:
-        model = Video
         include_relationships = True
         load_instance = True

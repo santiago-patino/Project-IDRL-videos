@@ -1,5 +1,5 @@
 from flask import request, current_app, jsonify, send_from_directory
-from modelos import db, Task, TaskSchema, Video
+from modelos import db, Task, TaskSchema
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 import os
@@ -45,8 +45,6 @@ class VistaTasks(Resource):
             query = query.limit(max_results)
             
         tasks = query.all()
-        
-        
         
         tasks_json = [
             {
@@ -101,8 +99,6 @@ class VistaTasks(Resource):
         os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
             
         filename = secure_filename(file.filename)
-        file_extension = os.path.splitext(filename)[1]
-        new_file_name = f"original{file_extension}"
             
         final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
         shutil.move(temp_file_path, final_file_path)
@@ -110,8 +106,6 @@ class VistaTasks(Resource):
         #Enviar cola
         args = (new_task.id,)
         editar_video.apply_async(args, persistent=True)
-            
-        video_url = f"http://127.0.0.1:5001/api/video/{str(new_task.id)}"
         
         new_task.nombre_video = filename
             
@@ -125,6 +119,9 @@ class VistaTask(Resource):
     
     def get(self, id_task):
         tasks = Task.query.filter_by(id=id_task).all()
+        
+        if tasks is None:
+            return {"message": "Task no encontrada"}, 404
         
         tasks_json = [
             {
@@ -140,11 +137,6 @@ class VistaTask(Resource):
         ]
         
         return tasks_json
-        
-        # if task is None:
-        #     return {"message": "Task no encontrada"}, 404
-        
-        # return task_schema.dump(task), 200
     
     def delete(self, id_task):
         task = Task.query.get(id_task)
@@ -175,30 +167,30 @@ class VistaVideos(Resource):
         max_results = request.args.get('max', type=int) 
         order = request.args.get('order', type=int)
         
-        query = Video.query
+        query = Task.query
         
         if order == 1:
-            query = query.order_by(Video.task_id.desc())  # Descendente
+            query = query.order_by(Task.id.desc())  # Descendente
         else:
-            query = query.order_by(Video.task_id.asc())  # Ascendente
+            query = query.order_by(Task.id.asc())  # Ascendente
             
         if max_results:
             query = query.limit(max_results)
             
-        videos = query.all()
+        tasks = query.all()
         
         videos_json = [
             {
-                "id": video.id,
-                "id_task": video.task_data.id,
-                "upload_by": { "id": video.task_data.user_data.id, "username": video.task_data.user_data.username },
-                "nombre_video": video.task_data.nombre_video,
-                "timeStamp": video.task_data.timeStamp.astimezone(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
-            if isinstance(video.task_data.timeStamp, datetime) else None,
-                "url_video": video.task_data.url_video,
-                "calificacion": video.calificacion,
+                "id": task.id,
+                "upload_by": { "id": task.user_data.id, "username": task.user_data.username },
+                "timeStamp": task.timeStamp.astimezone(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(task.timeStamp, datetime) else None,
+                "status": task.status,
+                "nombre_video": task.nombre_video,
+                **({"url_video": task.url_video} if task.status == "processed" else {}),
+                "calificacion": task.calificacion,
             }
-            for video in videos if video.task_data.status == "processed"
+            for task in tasks
         ]
         
         return videos_json, 200
