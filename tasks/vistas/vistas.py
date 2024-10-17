@@ -1,5 +1,5 @@
 from flask import request, current_app, jsonify, send_from_directory
-from modelos import db, Task, TaskSchema
+from modelos import db, Task, TaskSchema, Video
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 import os
@@ -120,7 +120,7 @@ class VistaTasks(Resource):
 class VistaTask(Resource):
     
     def get(self, id_task):
-        task = Task.query.filter_by(id=id_task).all()
+        tasks = Task.query.filter_by(id=id_task).all()
         
         tasks_json = [
             {
@@ -129,7 +129,7 @@ class VistaTask(Resource):
                 "upload_by": { "id": task.user_data.id, "username": task.user_data.username },
                 "processed": task.status == "processed",
                 "nombre_archivo": task.nombre_video,
-                "url_video": task.url_video,
+                **({"url_video": task.url_video} if task.status == "processed" else {}),
             }
             for task in tasks
         ]
@@ -165,24 +165,26 @@ class VistaVideos(Resource):
         max_results = request.args.get('max', type=int) 
         order = request.args.get('order', type=int)
         
-        query = Task.query
+        query = Video.query
         
         if order == 1:
-            query = query.order_by(Task.id.desc())  # Descendente
+            query = query.order_by(Video.id.desc())  # Descendente
         else:
-            query = query.order_by(Task.id.asc())  # Ascendente
+            query = query.order_by(Video.id.asc())  # Ascendente
             
         if max_results:
             query = query.limit(max_results)
             
-        tasks = query.all()
+        videos = query.all()
         
         videos_json = [
             {
-                "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
-                "url_video": task.url_video,
+                "nombre_video": video.task_data.nombre_video,
+                "timeStamp": video.task_data.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(video.task_data.timeStamp, datetime) else None,
+                "url_video": video.task_data.url_video,
+                "calificacion": video.calificacion
             }
-            for task in tasks
+            for video in videos
         ]
         
         return videos_json, 200

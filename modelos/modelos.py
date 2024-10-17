@@ -17,19 +17,19 @@ class User(db.Model):
 class Task(db.Model):
     __tablename__ = 'task'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    timeStamp = db.Column(db.DateTime, default=lambda: datetime.now(pytz.utc), nullable=False)
+    timeStamp = db.Column(db.DateTime, default=lambda: datetime.now(pytz.timezone('America/Bogota')), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(50))
     nombre_video = db.Column(db.String(255), nullable=True)
     url_video = db.Column(db.String(255), nullable=True)
     user_data = db.relationship('User', back_populates='tasks')
-    videos = db.relationship('Video', back_populates='task_data', lazy=True)
+    video = db.relationship('Video', back_populates='task_data', lazy=True)
     
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
-    task_data = db.relationship('Task', back_populates='videos')
-    calificacion = db.Column(db.Integer, nullable=True)
+    task_data = db.relationship('Task', back_populates='video')
+    calificacion = db.Column(db.Integer, nullable=True, default=0)
     
 class UserSchema(SQLAlchemyAutoSchema):
     class Meta:

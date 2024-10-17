@@ -1,5 +1,9 @@
+import sys
+import os
+ruta_modelos = os.path.join(os.path.dirname(__file__), '../modelos')
+sys.path.append(ruta_modelos)
+
 from flask import Flask
-#from routes import routes
 from flask_restful import Api
 from vistas import VistaRegistro, VistaLogin, VistaTasks, VistaTask, VistaVideos
 from flask_jwt_extended import JWTManager
