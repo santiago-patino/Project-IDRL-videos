@@ -17,10 +17,8 @@ def editar_video(task_id):
     task = Task.query.get(task_id)
     
     if task:
-        video_url = task.url_video_original
-        
         filename = task.nombre_video
-        original_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/' + str(task_id), filename)
+        original_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', filename)
         
         directory = os.path.dirname(original_file_path)
         if os.path.exists(directory):
@@ -52,7 +50,7 @@ def editar_video(task_id):
             
             task.status = "processed"
             new_video_url = f"http://127.0.0.1:5001/api/video/{str(task.id)}"
-            task.url_video_editado = new_video_url
+            task.url_video = new_video_url
             
             db.session.commit()
     

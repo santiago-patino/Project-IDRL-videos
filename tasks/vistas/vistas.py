@@ -48,11 +48,11 @@ class VistaTasks(Resource):
         tasks_json = [
             {
                 "id": task.id,
-                "user": { "id": task.creator.id, "username": task.creator.username },
                 "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
-                "status": task.status,
-                "url_video_original": task.url_video_original,
-                "url_video_editado": task.url_video_editado,
+                "upload_by": { "id": task.user_data.id, "username": task.user_data.username },
+                "processed": task.status == "processed",
+                "nombre_archivo": task.nombre_video,
+                "url_video": task.url_video,
             }
             for task in tasks
         ]
@@ -110,7 +110,6 @@ class VistaTasks(Resource):
         video_url = f"http://127.0.0.1:5001/api/video/{str(new_task.id)}"
         
         new_task.nombre_video = filename
-        new_task.url_video_original = video_url
             
         db.session.commit()
        
@@ -121,12 +120,26 @@ class VistaTasks(Resource):
 class VistaTask(Resource):
     
     def get(self, id_task):
-        task = Task.query.get(id_task)
+        task = Task.query.filter_by(id=id_task).all()
         
-        if task is None:
-            return {"message": "Task no encontrada"}, 404
+        tasks_json = [
+            {
+                "id": task.id,
+                "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
+                "upload_by": { "id": task.user_data.id, "username": task.user_data.username },
+                "processed": task.status == "processed",
+                "nombre_archivo": task.nombre_video,
+                "url_video": task.url_video,
+            }
+            for task in tasks
+        ]
         
-        return task_schema.dump(task), 200
+        return tasks_json
+        
+        # if task is None:
+        #     return {"message": "Task no encontrada"}, 404
+        
+        # return task_schema.dump(task), 200
     
     def delete(self, id_task):
         task = Task.query.get(id_task)
@@ -167,8 +180,7 @@ class VistaVideos(Resource):
         videos_json = [
             {
                 "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
-                "url_video_uploaded": task.url_video_original,
-                "url_video_processed": task.url_video_editado,
+                "url_video": task.url_video,
             }
             for task in tasks
         ]

@@ -12,7 +12,7 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    tasks = db.relationship('Task', back_populates='creator', lazy=True)
+    tasks = db.relationship('Task', back_populates='user_data', lazy=True)
     
 class Task(db.Model):
     __tablename__ = 'task'
@@ -21,14 +21,14 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(50))
     nombre_video = db.Column(db.String(255), nullable=True)
-    url_video_original = db.Column(db.String(255), nullable=True)
-    url_video_editado = db.Column(db.String(255), nullable=True)
-    creator = db.relationship('User', back_populates='tasks')
+    url_video = db.Column(db.String(255), nullable=True)
+    user_data = db.relationship('User', back_populates='tasks')
+    videos = db.relationship('Video', back_populates='task_data', lazy=True)
     
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nombre = db.Column(db.String(255), nullable=True)
-    url = db.Column(db.String(255), nullable=True)
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
+    task_data = db.relationship('Task', back_populates='videos')
     calificacion = db.Column(db.Integer, nullable=True)
     
 class UserSchema(SQLAlchemyAutoSchema):
