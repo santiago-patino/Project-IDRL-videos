@@ -77,19 +77,23 @@ class VistaLogin(Resource):
         data = request.json
         
         # Verificar si se pasaron los campos requeridos
-        if not data.get('username'):
-            return {'mensaje': 'Falta el campo username'}, 400
+        if not data.get('username') and not data.get('email'):
+            return {'mensaje': 'Se requiere el campo username o email'}, 400
         
         if not data.get('password'):
             return {'mensaje': 'Faltan el campo password'}, 400
         
         # Buscar el usuario por nombre de usuario
-        user = User.query.filter_by(username=data['username']).first()
+        user = None
+        if data.get('username'):
+            user = User.query.filter_by(username=data['username']).first()
+        elif data.get('email'):
+            user = User.query.filter_by(email=data['email']).first()
         
         # Si el usuario no existe o la contraseña es incorrecta
         if not user or user.password != data['password']:
             return {'mensaje': 'Usuario o contraseña incorrectos'}, 401
-        print(user.id)
+        
         token = create_access_token(identity = user.id)
         
         return {'token': token}, 200
@@ -111,13 +115,9 @@ class VistaTasks(Resource):
         
         if response.status_code == 200:
            result = response.json()
-           return {
-               'message': 'File uploaded successfully and sent to microservice',
-               'current_user': current_user,
-               'microservice_response': result
-           }, 200
+           return result, 200
         else:
-            return {'message': 'File uploaded but failed to send to microservice', 'error': response.text}, 500
+            return {'message': response.text}, 500
     
     @jwt_required()
     def post(self):
@@ -141,13 +141,9 @@ class VistaTasks(Resource):
         print(response)
         if response.status_code == 200:
             result = response.json()
-            return {
-                'message': 'File uploaded successfully and sent to microservice',
-                'current_user': current_user,
-                'microservice_response': result
-            }, 200
+            return result, 200
         else:
-            return {'message': 'File uploaded but failed to send to microservice', 'error': response.text}, 500
+            return {'message': response.text}, 500
         
 class VistaTask(Resource):
     

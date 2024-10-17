@@ -1,4 +1,4 @@
-from flask import request, current_app, jsonify
+from flask import request, current_app, jsonify, send_from_directory
 from modelos import db, Task, TaskSchema
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
@@ -31,9 +31,7 @@ class VistaTasks(Resource):
         max_results = request.args.get('max', type=int)  # Convertir a entero o None
         order = request.args.get('order', type=int)  # Convertir a entero o None
         
-        query = Task.query.filter_by(user=current_user)
-        
-        #tasks = Task.query.filter_by(user=current_user).all()
+        query = Task.query.filter_by(user_id=current_user)
         
         # Aplicar ordenamiento
         if order == 1:
@@ -50,7 +48,7 @@ class VistaTasks(Resource):
         tasks_json = [
             {
                 "id": task.id,
-                "user": task.user,
+                "user": { "id": task.creator.id, "username": task.creator.username },
                 "timeStamp": task.timeStamp.strftime("%Y-%m-%d %H:%M:%S") if isinstance(task.timeStamp, datetime) else None,
                 "status": task.status,
                 "url_video_original": task.url_video_original,
@@ -66,12 +64,9 @@ class VistaTasks(Resource):
         current_user = request.form.get('current_user')
        
         file = request.files['file']
-       
-        if not file:
-            return {"error": "No file uploaded"}, 400
         
         if file.mimetype not in ALLOWED_VIDEO_MIME_TYPES:
-            return {"error": "Invalid file type. Please upload a video file."}, 400
+            return {"error": "Archivo invalido. Porfavor envie un archivo de video (.mp4)"}, 400
         
         temp_file_path = os.path.join('/tmp', secure_filename(file.filename))
         file.save(temp_file_path)
@@ -82,7 +77,7 @@ class VistaTasks(Resource):
                 
             if duration < 20 or duration > 60:
                 os.remove(temp_file_path)  # Elimina el archivo si no cumple con las condiciones
-                return {'error': 'Video duration must be between 20 and 60 seconds'}, 400
+                return {'error': 'Video debe tener una duracion minima de 20 segundos y maxima de 60'}, 400
             
         except Exception as e:
              if os.path.exists(temp_file_path):
@@ -90,7 +85,7 @@ class VistaTasks(Resource):
                 return {'error': str(e)}, 400
             
         new_task = Task(
-            user=current_user,
+            user_id=current_user,
             status='uploaded',
         )
        
@@ -105,28 +100,22 @@ class VistaTasks(Resource):
         file_extension = os.path.splitext(filename)[1]
         new_file_name = f"original{file_extension}"
             
-        final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', new_file_name))
+        final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
         shutil.move(temp_file_path, final_file_path)
             
         #Enviar cola
         args = (new_task.id,)
         editar_video.apply_async(args, persistent=True)
             
-        video_url = f"http://127.0.0.1:5001/videos/{str(new_task.id)}/{new_file_name}"
-            
+        video_url = f"http://127.0.0.1:5001/api/video/{str(new_task.id)}"
+        
+        new_task.nombre_video = filename
         new_task.url_video_original = video_url
             
         db.session.commit()
        
         return {
-            'message': 'Tarea creada exitosamente',
-            'task': {
-                'id': new_task.id,
-                'status': new_task.status,
-                'timeStamp': new_task.timeStamp.isoformat(),
-                'url_video_original': new_task.url_video_original,
-                'url_video_editado': new_task.url_video_editado,
-            }
+            'message': f'Tarea {new_task.id} creada exitosamente',
         }, 200
     
 class VistaTask(Resource):
@@ -185,3 +174,20 @@ class VistaVideos(Resource):
         ]
         
         return videos_json, 200
+    
+class VistaVideo(Resource):
+    
+    def get(self, id_task):
+        task = Task.query.get(id_task)
+        
+        if task is None:
+            return {"message": "Video no encontrado"}, 404
+        
+        filename = f"edited_{task.nombre_video}"
+        video_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(id_task))
+        file_path = os.path.join(video_directory, filename)
+        
+        if os.path.exists(file_path):
+            return send_from_directory(video_directory, filename)
+        else:
+            return jsonify({"mensaje": f"El archivo de video no se encontró o no ha sido procesado para la tarea '{id_task}'."}), 404
