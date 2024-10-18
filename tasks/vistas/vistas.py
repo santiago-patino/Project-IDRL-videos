@@ -142,10 +142,16 @@ class VistaTask(Resource):
         return tasks_json
     
     def delete(self, id_task):
+        
+        current_user = request.form.get('current_user')
+        
         task = Task.query.get(id_task)
         
         if task is None:
             return {"message": "Task no encontrada"}, 404
+        
+        if task.user_id != current_user:
+            return {"message": "No tienes permisos para eliminar esta Task"}, 401
         
         if task.status == "processed":
             db.session.delete(task)

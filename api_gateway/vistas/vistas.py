@@ -153,6 +153,14 @@ class VistaTask(Resource):
     @jwt_required()
     def delete(self, id_task):
         
+        current_user = get_jwt_identity()
+        
+        data = {
+            'current_user': current_user
+        }
+        
+        response = requests.get(f'{tasks_url}api/tasks', data=data)
+        
         response = requests.delete(f'{tasks_url}api/tasks/{id_task}')
         
         return response.json(), response.status_code
