@@ -150,7 +150,7 @@ class VistaTask(Resource):
         if task is None:
             return {"message": "Task no encontrada"}, 404
         
-        if task.user_id != current_user:
+        if str(task.user_id) != str(current_user):
             return {"message": "No tienes permisos para eliminar esta Task"}, 401
         
         if task.status == "processed":

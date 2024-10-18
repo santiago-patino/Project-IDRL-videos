@@ -159,9 +159,7 @@ class VistaTask(Resource):
             'current_user': current_user
         }
         
-        response = requests.get(f'{tasks_url}api/tasks', data=data)
-        
-        response = requests.delete(f'{tasks_url}api/tasks/{id_task}')
+        response = requests.delete(f'{tasks_url}api/tasks/{id_task}', data=data)
         
         return response.json(), response.status_code
     
