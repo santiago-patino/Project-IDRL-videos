@@ -1,5 +1,9 @@
+import sys
+import os
+ruta_modelos = os.path.join(os.path.dirname(__file__), '../modelos')
+sys.path.append(ruta_modelos)
+
 from flask import Flask
-#from routes import routes
 from flask_restful import Api
 from vistas import VistaRegistro, VistaLogin, VistaTasks, VistaTask, VistaVideos
 from flask_jwt_extended import JWTManager
@@ -9,8 +13,13 @@ from modelos import db
 from os import environ
 
 app = Flask(__name__)
+<<<<<<< HEAD
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/flask_database'
 # app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
+=======
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/flask_database'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
+>>>>>>> f51729f9bcb6f3b499532cd5eb220ff3d43adb4b
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['JWT_SECRET_KEY']='frase-secreta'

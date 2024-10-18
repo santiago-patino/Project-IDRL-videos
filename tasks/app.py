@@ -1,6 +1,11 @@
-from flask import Flask, send_from_directory
+import sys
+import os
+ruta_modelos = os.path.join(os.path.dirname(__file__), '../modelos')
+sys.path.append(ruta_modelos)
+
+from flask import Flask, send_from_directory, jsonify
 from flask_restful import Api
-from vistas import VistaTasks, VistaTask, VistaVideos
+from vistas import VistaTasks, VistaTask, VistaVideos, VistaVideo
 from modelos import db
 from os import environ
 import os
@@ -22,11 +27,7 @@ api = Api(app)
 api.add_resource(VistaTasks, '/api/tasks')
 api.add_resource(VistaTask, '/api/tasks/<int:id_task>')
 api.add_resource(VistaVideos, '/api/videos')
-
-@app.route('/videos/<int:task_id>/<path:filename>', methods=['GET'])
-def uploaded_file(task_id, filename):
-    print()
-    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], str(task_id)), filename)
+api.add_resource(VistaVideo, '/api/video/<int:id_task>')
 
 
 

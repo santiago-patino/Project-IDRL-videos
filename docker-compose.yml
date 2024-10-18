@@ -1,28 +1,7 @@
 version: '3.8'
 
 services:
-  api_gateway:
-    build:
-      context: .
-      dockerfile: /api_gateway/Dockerfile
-    ports:
-      - "5000:5000"
-    environment:
-      - DB_URL=${DB_URL}
-    depends_on:
-      - flask_db
 
-  tasks:
-    build:
-      context: .
-      dockerfile: /tasks/Dockerfile
-    ports:
-      - "5001:5001"
-    environment:
-      - DB_URL=${DB_URL}
-    depends_on:
-      - flask_db
-  
   flask_db:
     container_name: flask_db
     image: postgres:12
@@ -34,6 +13,55 @@ services:
      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+          test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+          interval: 2s
+
+  redis:
+    image: "redis:latest"
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  api_gateway:
+    build:
+      context: .
+      dockerfile: /api_gateway/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_URL=${DB_URL}
+    depends_on:
+      flask_db:
+        condition: service_healthy
+
+  tasks:
+    build:
+      context: .
+      dockerfile: /tasks/Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - DB_URL=${DB_URL}
+    depends_on:
+      - flask_db
+      - redis
+    volumes:
+      - ./videos:/app/videos
+
+  process_videos:
+    build:
+      context: .
+      #command: celery -A tareas worker -l info
+      dockerfile: /process_videos/Dockerfile
+    environment:
+      - DB_URL=${DB_URL}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - flask_db
+      - redis
+    volumes:
+      - ./videos:/app/videos
 
 volumes:
   pgdata: {}

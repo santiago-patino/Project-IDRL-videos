@@ -1,22 +1,29 @@
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from datetime import datetime
+import pytz
 
 db = SQLAlchemy()
 
 # Modelo de Usuario
 class User(db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    tasks = db.relationship('Task', back_populates='user_data', lazy=True)
     
 class Task(db.Model):
+    __tablename__ = 'task'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    timeStamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False)
-    user = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timeStamp = db.Column(db.DateTime, default=lambda: datetime.now(pytz.timezone('America/Bogota')), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(50))
-    url_video_original = db.Column(db.String(255), nullable=True)
-    url_video_editado = db.Column(db.String(255), nullable=True)
+    nombre_video = db.Column(db.String(255), nullable=True)
+    url_video = db.Column(db.String(255), nullable=True)
+    user_data = db.relationship('User', back_populates='tasks')
+    calificacion = db.Column(db.Integer, nullable=True, default=0)
     
 class UserSchema(SQLAlchemyAutoSchema):
     class Meta:
