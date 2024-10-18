@@ -113,11 +113,7 @@ class VistaTasks(Resource):
         
         response = requests.get(f'{tasks_url}api/tasks', params=params, data=data)
         
-        if response.status_code == 200:
-           result = response.json()
-           return result, 200
-        else:
-            return {'message': response.text}, 500
+        return response.json(), response.status_code
     
     @jwt_required()
     def post(self):

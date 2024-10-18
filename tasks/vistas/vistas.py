@@ -46,6 +46,9 @@ class VistaTasks(Resource):
             
         tasks = query.all()
         
+        if not tasks:
+            return {"message": "No hay tasks asociadas al usuario"}, 404
+        
         tasks_json = [
             {
                 "id": task.id,
@@ -120,7 +123,7 @@ class VistaTask(Resource):
     def get(self, id_task):
         tasks = Task.query.filter_by(id=id_task).all()
         
-        if tasks is None:
+        if not tasks:
             return {"message": "Task no encontrada"}, 404
         
         tasks_json = [
@@ -179,6 +182,9 @@ class VistaVideos(Resource):
             
         tasks = query.all()
         
+        if not tasks:
+            return {"mensaje": "No hay videos almacenados"}, 404
+        
         videos_json = [
             {
                 "id": task.id,
@@ -192,7 +198,6 @@ class VistaVideos(Resource):
             }
             for task in tasks
         ]
-        
         return videos_json, 200
     
 class VistaVideo(Resource):
