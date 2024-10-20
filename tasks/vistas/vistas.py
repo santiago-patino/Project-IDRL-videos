@@ -106,13 +106,13 @@ class VistaTasks(Resource):
         final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
         shutil.move(temp_file_path, final_file_path)
             
-        #Enviar cola
-        args = (new_task.id,)
-        editar_video.apply_async(args, persistent=True)
-        
         new_task.nombre_video = filename
             
         db.session.commit()
+        
+        #Enviar cola
+        args = (new_task.id,)
+        editar_video.apply_async(args, persistent=True)
        
         return {
             'message': f'Tarea {new_task.id} creada exitosamente',
