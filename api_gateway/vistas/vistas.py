@@ -142,7 +142,13 @@ class VistaTask(Resource):
     @jwt_required()
     def get(self, id_task):
         
-        response = requests.get(f'{tasks_url}api/tasks/{id_task}')
+        current_user = get_jwt_identity()
+        
+        data = {
+            'current_user': current_user
+        }
+        
+        response = requests.get(f'{tasks_url}api/tasks/{id_task}', data=data)
         
         return response.json(), response.status_code
     

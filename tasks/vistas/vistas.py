@@ -121,25 +121,31 @@ class VistaTasks(Resource):
 class VistaTask(Resource):
     
     def get(self, id_task):
-        tasks = Task.query.filter_by(id=id_task).all()
         
-        if not tasks:
+        current_user = request.form.get('current_user')
+        
+        task = Task.query.filter_by(id=id_task).first()
+        
+        if not task:
             return {"message": "Task no encontrada"}, 404
         
-        tasks_json = [
-            {
-                "id": task.id,
-                "timeStamp": task.timeStamp.astimezone(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
-            if isinstance(task.timeStamp, datetime) else None,
-                "upload_by": { "id": task.user_data.id, "username": task.user_data.username },
-                "processed": task.status == "processed",
-                "nombre_archivo": task.nombre_video,
-                **({"url_video": task.url_video} if task.status == "processed" else {}),
-            }
-            for task in tasks
-        ]
+        if str(task.user_id) != str(current_user):
+            return {"message": "No tienes permisos para ver esta Task"}, 401
         
-        return tasks_json
+        task_json = {
+            "id": task.id,
+            "timeStamp": task.timeStamp.astimezone(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(task.timeStamp, datetime) else None,
+            "upload_by": {
+                "id": task.user_data.id,
+                "username": task.user_data.username
+            },
+            "processed": task.status == "processed",
+            "nombre_archivo": task.nombre_video,
+            **({"url_video": task.url_video} if task.status == "processed" else {}),
+        }
+        
+        return task_json
     
     def delete(self, id_task):
         
