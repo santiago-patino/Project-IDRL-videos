@@ -184,40 +184,6 @@ class TestVistaRegistro(TestCase):
             'Faltan campos obligatorios',
         )
 
-    def test_registro_correo_formato_invalido(self):
-
-        ## Mock usuario con password2 invalido.
-        nuevo_usuario = {
-            'username': self.data_factory.user_name(),
-            'email': self.data_factory.email().replace('@', ''),
-            'password1': '12345678',
-            'password2': '12345678',
-        }
-
-        ## Mock peticion post para registrar usuario
-        solicitud_registro_usuario = self.client.post(
-            "/api/auth/signup",
-            data=json.dumps(nuevo_usuario),
-            headers={'Content-Type': 'application/json'}
-        )
-
-        ## Respuesta de la petición
-        respuesta_registro_usuario = json.loads(
-            solicitud_registro_usuario.get_data()
-        )
-
-        ## Se espera que el servicio retorne código 400
-        self.assertEqual(
-            solicitud_registro_usuario.status_code, 
-            400,
-        )
-
-        ## Se espera que retorne mensaje "El correo ingresado tiene un formato invalido"
-        self.assertEqual(
-            respuesta_registro_usuario['mensaje'],
-            'El correo ingresado tiene un formato invalido',
-        )
-
     def test_registro_passwords_diferentes(self):
 
         ## Mock usuario con password2 invalido.

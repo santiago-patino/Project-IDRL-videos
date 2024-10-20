@@ -59,10 +59,10 @@ class TestVistaLogin(TestCase):
             400,
         )
 
-        ## Se espera que retorne mensaje "Falta el campo username"
+        ## Se espera que retorne mensaje "Se requiere el campo username o email"
         self.assertEqual(
             respuesta_login_usuario['mensaje'],
-            'Falta el campo username',
+            'Se requiere el campo username o email',
         )
 
     def test_login_password_invalido(self):
