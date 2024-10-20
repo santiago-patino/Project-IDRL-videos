@@ -134,12 +134,8 @@ class VistaTasks(Resource):
         
         files = {'file': (file.filename, file.stream, file.content_type)}
         response = requests.post(f'{tasks_url}api/tasks', files=files, data=data)
-        print(response)
-        if response.status_code == 200:
-            result = response.json()
-            return result, 200
-        else:
-            return {'message': response.text}, 500
+        
+        return response.json(), response.status_code
         
 class VistaTask(Resource):
     
