@@ -10,8 +10,8 @@ import requests
 
 # Instancia del esquema
 user_schema = UserSchema()
-tasks_url = 'http://tasks:5001/'
-#tasks_url = 'http://localhost:5001/'
+#tasks_url = 'http://tasks:5001/'
+tasks_url = 'http://localhost:5001/'
 
 
 def validar_contrasena(contrasena):
