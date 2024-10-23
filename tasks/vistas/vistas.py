@@ -11,10 +11,15 @@ from moviepy.editor import VideoFileClip
 import shutil
 import pytz
 
+import json
+
+with open('../config.json') as config_file:
+    config = json.load(config_file)
+
 # Lista de tipos MIME válidos para videos
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 
-celery_app = Celery('task', broker='redis://redis:6379/0')
+celery_app = Celery('task', broker=f'redis://{config['DB_URL']}:6379/0')
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):

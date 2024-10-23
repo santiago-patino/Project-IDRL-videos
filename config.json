@@ -1,4 +1,5 @@
 {
-    "DB_URL": "postgresql://postgres:1234@35.238.142.44:5432/flask_database",
-    "VIDEOS_FOLDER": "../videos"
+    "DB_URL": "postgresql://postgres:1234@104.197.89.23:5432/flask_database",
+    "VIDEOS_FOLDER": "../videos",
+    "REDIS_SERVER": "10.128.0.4"
 }
