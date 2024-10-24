@@ -1,6 +1,7 @@
 from flask import Flask
 from modelos import db
 from os import environ
+import os
 
 
 app = Flask(__name__)
