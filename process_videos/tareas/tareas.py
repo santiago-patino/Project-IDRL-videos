@@ -53,7 +53,7 @@ def editar_video(task_id):
             final_video.write_videofile(edited_file_path, fps=cropped_video.fps, codec='libx264')
             
             task.status = "processed"
-            new_video_url = f"http://127.0.0.1:5001/api/video/{str(task.id)}"
+            new_video_url = f"http://35.209.36.54:5001/api/video/{str(task.id)}"
             task.url_video = new_video_url
             
             db.session.commit()
