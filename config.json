@@ -2,5 +2,5 @@
     "DB_URL": "postgresql://postgres:1234@10.128.0.2:5432/flask_database",
     "VIDEOS_FOLDER": "../../remote-folder/videos",
     "REDIS_SERVER": "10.128.0.4",
-    "TASKS_MICROSERVICE": "10.128.0.4"
+    "TASKS_MICROSERVICE": "104.197.62.160"
 }
