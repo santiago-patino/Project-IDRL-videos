@@ -17,7 +17,7 @@ with open('../config.json') as config_file:
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@35.238.142.44:5432/flask_database'
-app.config['SQLALCHEMY_DATABASE_URI'] = config['DB_URL']
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 UPLOAD_FOLDER = os.path.join(app.root_path, config['VIDEOS_FOLDER'])
