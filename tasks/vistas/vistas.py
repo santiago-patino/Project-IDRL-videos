@@ -10,6 +10,7 @@ from celery import Celery
 from moviepy.editor import VideoFileClip
 import shutil
 import pytz
+import urllib.request
 
 # Lista de tipos MIME válidos para videos
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
@@ -108,6 +109,11 @@ class VistaTasks(Resource):
         shutil.move(temp_file_path, final_file_path)
             
         new_task.nombre_video = filename
+        
+        ip_tasks_microservice = obtener_ip_externa()
+        if ip_tasks_microservice is not None:
+            new_video_url = "http://"+ ip_tasks_microservice +":5001/api/video/"+str(new_task.id)
+            new_task.url_video = new_video_url
             
         db.session.commit()
         
@@ -230,3 +236,18 @@ class VistaVideo(Resource):
             return send_from_directory(video_directory, filename)
         else:
             return jsonify({"mensaje": f"El archivo de video no se encontró o no ha sido procesado para la tarea '{id_task}'."}), 404
+        
+def obtener_ip_externa():
+    try:
+        # URL de los metadatos de GCP para la IP externa
+        url = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
+        
+        # Necesario agregar este encabezado para acceder a los metadatos
+        headers = {"Metadata-Flavor": "Google"}
+        
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req) as response:
+            ip_externa = response.read().decode('utf-8').strip()
+            return ip_externa
+    except Exception as e:
+        return f"Error al obtener la IP externa: {e}"

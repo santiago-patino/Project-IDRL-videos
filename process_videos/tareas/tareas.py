@@ -56,34 +56,12 @@ def editar_video(task_id):
             task.status = "processed"
             #new_video_url = f"http://35.209.36.54:5001/api/video/{str(task.id)}"
             #new_video_url = "http://"+ os.environ.get('TASKS_MICROSERVICE') +":5001/api/video/"+str(task.id)
-            ip_tasks_microservice = obtener_ip_externa('microservicio-web')
-            if ip_tasks_microservice is not None:
-                new_video_url = "http://"+ ip_tasks_microservice +":5001/api/video/"+str(task.id)
-                task.url_video = new_video_url
+            #task.url_video = new_video_url
             
             db.session.commit()
     
         else:
             print(f"Directorio no existe: {task_id}")
-        
-def obtener_ip_externa(nombre_instancia):
-    # Crear un cliente de Compute Engine
-    instances_client = compute_v1.InstancesClient()
-    
-    # Obtener la información de la instancia
-    instancia = instances_client.get(project='misw4204-202415-grupo10', zone='us-central1-a', instance=nombre_instancia)
-
-    # Buscar y retornar la IP externa
-    for network_interface in instancia.network_interfaces:
-        for access_config in network_interface.access_configs:
-            if access_config.name == 'External NAT':
-                return access_config.nat_ip
-    return None
-            
-        
-        
-        
-        
         
         
     
