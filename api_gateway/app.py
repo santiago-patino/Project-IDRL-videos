@@ -16,8 +16,8 @@ import json
 
 from dotenv import load_dotenv
 
-with open('../config.json') as config_file:
-    config = json.load(config_file)
+# with open('../config.json') as config_file:
+#     config = json.load(config_file)
     
 load_dotenv()
 
