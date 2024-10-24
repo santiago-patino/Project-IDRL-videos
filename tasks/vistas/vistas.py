@@ -109,6 +109,11 @@ class VistaTasks(Resource):
         shutil.move(temp_file_path, final_file_path)
             
         new_task.nombre_video = filename
+        db.session.commit()
+        
+        #Enviar cola
+        args = (new_task.id,)
+        editar_video.apply_async(args, persistent=True)
         
         ip_tasks_microservice = obtener_ip_externa()
         if ip_tasks_microservice is not None:
@@ -116,10 +121,6 @@ class VistaTasks(Resource):
             new_task.url_video = new_video_url
             
         db.session.commit()
-        
-        #Enviar cola
-        args = (new_task.id,)
-        editar_video.apply_async(args, persistent=True)
        
         return {
             'message': f'Tarea {new_task.id} creada exitosamente',
@@ -250,4 +251,4 @@ def obtener_ip_externa():
             ip_externa = response.read().decode('utf-8').strip()
             return ip_externa
     except Exception as e:
-        return f"Error al obtener la IP externa: {e}"
+        return None
