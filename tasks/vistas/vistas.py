@@ -222,6 +222,7 @@ class VistaVideo(Resource):
             return {"message": "Video no encontrado"}, 404
         
         filename = f"edited_{task.nombre_video}"
+        print(current_app.config['UPLOAD_FOLDER'])
         video_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(id_task))
         file_path = os.path.join(video_directory, filename)
         
