@@ -3,6 +3,9 @@ from modelos import db
 from os import environ
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
