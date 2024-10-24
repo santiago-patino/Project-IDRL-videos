@@ -10,16 +10,9 @@ from modelos import db
 from os import environ
 import os
 
-import json
 from dotenv import load_dotenv
-
-# with open('../config.json') as config_file:
-#     config = json.load(config_file)
     
 load_dotenv()
-
-print(environ.get('DB_URL'))
-print(environ.get('VIDEOS_FOLDER'))
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
