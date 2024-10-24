@@ -12,11 +12,6 @@ from werkzeug.utils import secure_filename
 from moviepy.editor import VideoFileClip, ImageClip, concatenate_videoclips, CompositeVideoClip
 import imageio
 
-import json
-
-with open('../config.json') as config_file:
-    config = json.load(config_file)
-
 celery_app = Celery('task', broker='redis://localhost:6379/0')
 
 @celery_app.task(name="process.video")
@@ -59,7 +54,7 @@ def editar_video(task_id):
             
             task.status = "processed"
             #new_video_url = f"http://35.209.36.54:5001/api/video/{str(task.id)}"
-            new_video_url = "http://"+ config['TASKS_MICROSERVICE'] +":5001/api/video/"+str(task.id)
+            new_video_url = "http://"+ os.environ.get('TASKS_MICROSERVICE') +":5001/api/video/"+str(task.id)
             task.url_video = new_video_url
             
             db.session.commit()
