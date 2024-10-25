@@ -7,6 +7,8 @@ import re
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from os import environ
 import requests
+import json
+import math
 
 # Instancia del esquema
 user_schema = UserSchema()
@@ -174,6 +176,78 @@ class VistaVideos(Resource):
         response = requests.get(f'{tasks_url}/api/videos', params=params)
         
         return response.json(), response.status_code
+
+class VistaWorkers(Resource):
+    
+    def get(self):
+        
+        response = requests.get(f"http://{str(environ.get('WORKER_IP'))}:5555/api/tasks")
+        
+        if response.status_code != 200:
+            return {"error": "No se pudo obtener los datos."}, response.status_code
+        
+        try:
+            data = response.json()  # Cambia a response.json() para obtener el JSON directamente
+        except json.JSONDecodeError:
+            return {"error": "Error al decodificar el JSON."}, 500
+        
+        if not data:
+            return {"message": "No hay tareas procesadas."}, 200
+
+        success_count = 0
+        failure_count = 0
+        total_runtime = 0
+        started_count = 0
+        started_tasks = []
+        
+        min_received_time = float('inf')  # Inicializar el tiempo de recepción mínimo
+        max_succeeded_time = float('-inf')  # Inicializar el tiempo de éxito máximo
+        
+        # Procesar cada registro
+        for record in data.values():
+            if record['state'] == "STARTED":
+                started_count += 1
+                started_tasks.append(record['args'])
+            elif record['state'] == "SUCCESS":
+                success_count += 1
+                max_succeeded_time = max(max_succeeded_time, record['succeeded'])
+            else:
+                failure_count += 1
+                
+            runtime_value = record.get('runtime')
+            if runtime_value is not None:  # Solo sumar si runtime_value no es None
+                total_runtime += runtime_value
+        
+        # Calcular el promedio del runtime
+        total_tasks = len(data)
+        processed_tasks = success_count + failure_count
+        
+        average_runtime = total_runtime / processed_tasks if processed_tasks > 0 else 0
+        average_runtime = round(average_runtime, 2)
+        
+        total_processing_time = sum(record['runtime'] for record in data.values() if record['state'] == "SUCCESS")
+        processing_time_in_minutes = total_processing_time / 60
+        tasks_per_minute = success_count / processing_time_in_minutes if processing_time_in_minutes > 0 else 0
+        
+        # Crear el resultado
+        result = {
+            "total_tasks": total_tasks,
+            "success": success_count,
+            "failure": failure_count,
+        }
+        
+        if tasks_per_minute > 0:
+            result["tasks_per_minute"] = math.floor(tasks_per_minute)
+        
+        if average_runtime > 0:
+            result["average_runtime(segundos)"] = average_runtime
+        
+        if started_count > 0 and started_tasks:
+            result["queue_tasks_count"] = started_count
+            result["queue_tasks"] = started_tasks
+        
+        return result, 200
+        
         
     
        

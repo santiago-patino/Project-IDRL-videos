@@ -15,3 +15,5 @@ imageio
 imageio[opencv]
 imageio[pyav]
 Pillow==9.5.0
+python-dotenv
+flower==1.0.0

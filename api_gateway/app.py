@@ -5,7 +5,7 @@ sys.path.append(ruta_modelos)
 
 from flask import Flask
 from flask_restful import Api
-from vistas import VistaRegistro, VistaLogin, VistaTasks, VistaTask, VistaVideos
+from vistas import VistaRegistro, VistaLogin, VistaTasks, VistaTask, VistaVideos, VistaWorkers
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 
@@ -17,9 +17,10 @@ from dotenv import load_dotenv
     
 load_dotenv()
 
-print(os.environ.get('DB_URL'))
+#print(os.environ.get('DB_URL'))
 
 app = Flask(__name__)
+#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:1234@flask_db:5432/flask_database"
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -40,6 +41,7 @@ api.add_resource(VistaLogin, '/api/auth/login')
 api.add_resource(VistaTasks, '/api/tasks')
 api.add_resource(VistaTask, '/api/tasks/<int:id_task>')
 api.add_resource(VistaVideos, '/api/videos')
+api.add_resource(VistaWorkers, '/api/workers')
 
 jwt = JWTManager(app)
     

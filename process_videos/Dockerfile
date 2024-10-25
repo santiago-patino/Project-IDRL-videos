@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5001
 
 # Comando para ejecutar la aplicación Flask
-CMD ["sh", "-c", "cd process_videos && celery -A tareas worker -l info"]
+#CMD ["sh", "-c", "cd process_videos && celery -A tareas worker -l info"]

@@ -16,7 +16,7 @@ import urllib.request
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 
 #celery_app = Celery('task', broker=f'redis://{config['DB_URL']}:6379/0')
-celery_app = Celery('task', broker='redis://' + os.environ.get('REDIS_SERVER') + ':6379/0')
+celery_app = Celery('task', broker='redis://' + str(os.environ.get('REDIS_SERVER')) + ':6379/0')
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):

@@ -11,9 +11,9 @@ from flask import current_app
 from werkzeug.utils import secure_filename
 from moviepy.editor import VideoFileClip, ImageClip, concatenate_videoclips, CompositeVideoClip
 import imageio
-from google.cloud import compute_v1
 
-celery_app = Celery('task', broker='redis://localhost:6379/0')
+#celery_app = Celery('task', broker='redis://localhost:6379/0')
+celery_app = Celery('task', broker='redis://redis:6379/0')
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):
