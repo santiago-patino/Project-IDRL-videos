@@ -181,7 +181,7 @@ class VistaWorkers(Resource):
     
     def get(self):
         
-        response = requests.get(f"http://{str(environ.get('WORKER_IP'))}:5555/api/tasks")
+        response = requests.get(f"http://{str(environ.get('WORKER_IP'))}:5000/api/tasks")
         
         if response.status_code != 200:
             return {"error": "No se pudo obtener los datos."}, response.status_code
