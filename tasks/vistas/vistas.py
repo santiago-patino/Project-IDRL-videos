@@ -103,8 +103,8 @@ class VistaTasks(Resource):
                     
             
         # Crear el directorio para guardar el archivo, si no existe
-        #upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
-        #os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
+        upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
+        os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
             
         filename = secure_filename(file.filename)
             
