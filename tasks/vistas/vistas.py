@@ -119,9 +119,8 @@ class VistaTasks(Resource):
         if ip_tasks_microservice is not None:
             new_video_url = "http://"+ ip_tasks_microservice +":5001/api/video/"+str(new_task.id)
             new_task.url_video = new_video_url
-            
-        db.session.commit()
-       
+            db.session.commit()
+    
         return {
             'message': f'Tarea {new_task.id} creada exitosamente',
         }, 200
