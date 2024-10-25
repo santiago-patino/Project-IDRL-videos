@@ -75,7 +75,17 @@ class VistaTasks(Resource):
         if file.mimetype not in ALLOWED_VIDEO_MIME_TYPES:
             return {"error": "Archivo invalido. Porfavor envie un archivo de video (.mp4)"}, 400
         
-        temp_file_path = os.path.join('/tmp', secure_filename(file.filename))
+        new_task = Task(
+            user_id=current_user,
+            status='uploaded',
+        )
+       
+        db.session.add(new_task)
+        db.session.commit()
+        
+        temp_dir = f'/tmp/{new_task.id}'
+        temp_file_path = os.path.join(temp_dir, secure_filename(file.filename))
+        os.makedirs(temp_dir, exist_ok=True)
         file.save(temp_file_path)
         
         try:
@@ -91,13 +101,6 @@ class VistaTasks(Resource):
                 os.remove(temp_file_path)
                 return {'error': str(e)}, 400
                     
-        new_task = Task(
-            user_id=current_user,
-            status='uploaded',
-        )
-       
-        db.session.add(new_task)
-        db.session.commit()
             
         # Crear el directorio para guardar el archivo, si no existe
         upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
