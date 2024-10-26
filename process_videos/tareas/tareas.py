@@ -24,8 +24,9 @@ def editar_video(task_id):
     if task:
         filename = task.nombre_video
         original_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', filename)
-        
+        print(original_file_path)
         directory = os.path.dirname(original_file_path)
+        print(directory)
         if os.path.exists(directory):
             image_path = "../images/logo.png"
             video_clip = VideoFileClip(original_file_path)
