@@ -205,7 +205,7 @@ class VistaWorkers(Resource):
         
         # Procesar cada registro
         for record in data.values():
-            if record['state'] == "STARTED":
+            if record['state'] in ["STARTED", "RECEIVED"]:
                 started_count += 1
                 started_tasks.append(record['args'])
             elif record['state'] == "SUCCESS":
