@@ -101,7 +101,7 @@ class VistaTasks(Resource):
                 os.remove(temp_file_path)
                 return {'error': str(e)}, 400
             
-        upload_folder = f'../{current_app.config['UPLOAD_FOLDER']}'
+        upload_folder = f'../{current_app.config["UPLOAD_FOLDER"]}'
             
         # Crear el directorio para guardar el archivo, si no existe
         upload_directory = os.path.join(upload_folder, str(new_task.id))
