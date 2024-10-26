@@ -100,15 +100,16 @@ class VistaTasks(Resource):
              if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
                 return {'error': str(e)}, 400
-                    
+            
+        upload_folder = f'../{current_app.config['UPLOAD_FOLDER']}'
             
         # Crear el directorio para guardar el archivo, si no existe
-        upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
+        upload_directory = os.path.join(upload_folder, str(new_task.id))
         os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
             
         filename = secure_filename(file.filename)
             
-        final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
+        final_file_path = os.path.join(os.path.join(f'{upload_folder}/{str(new_task.id)}', filename))
         shutil.move(temp_file_path, final_file_path)
             
         new_task.nombre_video = filename
