@@ -31,7 +31,7 @@ def editar_video(task_id):
         
         temp_path = os.path.join(f'/tmp/{str(task_id)}')
         os.makedirs(temp_path, exist_ok=True)
-        path_video_download = os.path.join(f'{temp_path}/{task.filename}')
+        path_video_download = f'{temp_path}/{filename}'
         
         download_video(original_file_path, path_video_download)
         directory = os.path.dirname(path_video_download)
