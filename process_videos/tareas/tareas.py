@@ -11,6 +11,7 @@ from flask import current_app
 from werkzeug.utils import secure_filename
 from moviepy.editor import VideoFileClip, ImageClip, concatenate_videoclips, CompositeVideoClip
 import imageio
+from google.cloud import storage
 
 celery_app = Celery('task', broker='redis://localhost:6379/0')
 #celery_app = Celery('task', broker='redis://redis:6379/0')

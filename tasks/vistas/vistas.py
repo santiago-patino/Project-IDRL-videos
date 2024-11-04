@@ -11,6 +11,7 @@ from moviepy.editor import VideoFileClip
 import shutil
 import pytz
 import urllib.request
+from google.cloud import storage
 
 # Lista de tipos MIME válidos para videos
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
