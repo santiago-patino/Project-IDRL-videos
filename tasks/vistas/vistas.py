@@ -236,7 +236,7 @@ class VistaVideo(Resource):
         
         temp_path = f'/tmp/{str(task.id)}'
         os.makedirs(temp_path, exist_ok=True)
-        path_video_download = f'{temp_path}/{filename}')
+        path_video_download = f'{temp_path}/{filename}'
         
         download_video(f'{task.id}/{filename}', path_video_download)
         
