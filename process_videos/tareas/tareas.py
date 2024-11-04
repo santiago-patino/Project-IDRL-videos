@@ -25,7 +25,7 @@ def editar_video(task_id):
     
     if task:
         filename = task.nombre_video
-        #original_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', filename)
+        original_file_path = os.path.join(str(task_id), filename)
         #original_file_path = os.path.join(f'{str(task_id)}', filename)
         #print(original_file_path)
         
@@ -38,7 +38,7 @@ def editar_video(task_id):
         
         if os.path.exists(directory):
             image_path = "../images/logo.png"
-            video_clip = VideoFileClip(original_file_path)
+            video_clip = VideoFileClip(path_video_download)
             
             video_aspect_ratio = 16 / 9
             video_width, video_height = video_clip.size
