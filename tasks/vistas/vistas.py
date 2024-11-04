@@ -110,7 +110,7 @@ class VistaTasks(Resource):
         filename = secure_filename(file.filename)
             
         #final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
-        upload_video(temp_file_path, f'{os.path.join(str(new_task.id))}/{filename}'));
+        upload_video(temp_file_path, f'{str(new_task.id)}/{filename}');
         #shutil.move(temp_file_path, final_file_path)
             
         new_task.nombre_video = filename
