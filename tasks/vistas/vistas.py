@@ -18,6 +18,7 @@ ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 
 #celery_app = Celery('task', broker=f'redis://{config['DB_URL']}:6379/0')
 celery_app = Celery('task', broker='redis://' + str(os.environ.get('REDIS_SERVER')) + ':6379/0')
+bucket_name = os.environ.get('BUCKET_NAME')
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):
@@ -264,7 +265,7 @@ def obtener_ip_externa():
 
 def upload_video(source_file_path, destination_blob_name):
     client = storage.Client()
-    bucket = client.bucket(os.environ.get('BUCKET_NAME'))
+    bucket = client.bucket(bucket_name)
     blob = bucket.blob(f'/videos/{destination_blob_name}')
 
     blob.upload_from_filename(source_file_path)
