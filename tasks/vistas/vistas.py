@@ -178,10 +178,8 @@ class VistaTask(Resource):
             try:
                delete_video(str(task.id))
                return {"mensaje": f"Task {task.id} eliminada"}, 200
-            except NotFound:
+            except Exception:
                return {"mensaje": f"No se encontró el video en el bucket para la tarea {task.id}."}, 404 
-            except Exception as e:
-               return {"mensaje": f"Ocurrió un error al intentar eliminar la tarea {task.id}: {str(e)}"}, 500
            
         else:
             return {"mensaje": f"Task {task.id} aun no ha sido procesada"}, 200
