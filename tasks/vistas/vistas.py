@@ -266,7 +266,7 @@ def obtener_ip_externa():
 def upload_video(source_file_path, destination_blob_name):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(f'/videos/{destination_blob_name}')
+    blob = bucket.blob(f'videos/{destination_blob_name}')
 
     blob.upload_from_filename(source_file_path)
     print(f'Video {source_file_path} subido a {destination_blob_name} en el bucket {bucket_name}.')
@@ -274,7 +274,7 @@ def upload_video(source_file_path, destination_blob_name):
 def download_video(source_blob_name, destination_file_path):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(f'/videos/{source_blob_name}')
+    blob = bucket.blob(f'videos/{source_blob_name}')
 
     blob.download_to_filename(destination_file_path)
     print(f'Video {source_blob_name} descargado a {destination_file_path}.')

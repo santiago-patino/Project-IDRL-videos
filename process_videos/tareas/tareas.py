@@ -30,7 +30,7 @@ def editar_video(task_id):
         #print(original_file_path)
         
         temp_path = os.path.join(f'/tmp/{str(task_id)}')
-        os.makedirs(temp_dir, exist_ok=True)
+        os.makedirs(temp_path, exist_ok=True)
         path_video_download = os.path.join(f'{temp_path}/{task.filename}')
         
         download_video(original_file_path, path_video_download)
@@ -75,7 +75,7 @@ def editar_video(task_id):
 def download_video(source_blob_name, destination_file_path):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(f'/videos/{source_blob_name}')
+    blob = bucket.blob(f'videos/{source_blob_name}')
 
     blob.download_to_filename(destination_file_path)
     print(f'Video {source_blob_name} descargado a {destination_file_path}.')
@@ -85,7 +85,7 @@ def upload_video(source_file_path, destination_blob_name):
 
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(f'/videos/{destination_blob_name}')
+    blob = bucket.blob(f'videos/{destination_blob_name}')
 
     blob.upload_from_filename(source_file_path)
     print(f'Video {source_file_path} subido a {destination_blob_name} en el bucket {bucket_name}.')
