@@ -68,7 +68,7 @@ def login(data):
     # Crear el token JWT con una expiración de 1 hora
     token = jwt.encode({
         'userId': user.id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
     }, SECRET_KEY, algorithm=ALGORITHM)
     
     return {'token': token}, 200
