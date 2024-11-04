@@ -63,7 +63,7 @@ def editar_video(task_id):
             edited_file_path = os.path.join(temp_path, new_file_name)
             
             final_video.write_videofile(edited_file_path, fps=cropped_video.fps, codec='libx264')
-            upload_video(edited_file_path, f'{str(new_task.id)}/{new_file_name}');
+            upload_video(edited_file_path, f'{str(task.id)}/{new_file_name}');
             
             task.status = "processed"
             
