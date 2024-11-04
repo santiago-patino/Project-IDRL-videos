@@ -178,7 +178,8 @@ class VistaTask(Resource):
             try:
                delete_video(str(task.id))
                return {"mensaje": f"Task {task.id} eliminada"}, 200
-            except Exception:
+            except Exception as e:
+               print(e)
                return {"mensaje": f"No se encontró el video en el bucket para la tarea {task.id}."}, 404 
            
         else:
@@ -293,6 +294,6 @@ def download_video(source_blob_name, destination_file_path):
 def delete_video(id_task):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(f'videos/{id_task}')
+    blob = bucket.blob(f'videos/{id_task}/')
     blob.delete()
     print(f'Tarea {id_task} eliminado del bucket')
