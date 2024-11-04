@@ -107,8 +107,9 @@ class VistaTasks(Resource):
             
         filename = secure_filename(file.filename)
             
-        final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
-        shutil.move(temp_file_path, final_file_path)
+        #final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
+        upload_video(temp_file_path, os.path.join(str(new_task.id) + filename));
+        #shutil.move(temp_file_path, final_file_path)
             
         new_task.nombre_video = filename
         db.session.commit()
@@ -230,12 +231,18 @@ class VistaVideo(Resource):
             return {"message": "Video no encontrado"}, 404
         
         filename = f"edited_{task.nombre_video}"
-        print(current_app.config['UPLOAD_FOLDER'])
-        video_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(id_task))
-        file_path = os.path.join(video_directory, filename)
         
-        if os.path.exists(file_path):
-            return send_from_directory(video_directory, filename)
+        temp_path = os.path.join(f'/tmp/{str(task.id)}'
+        os.makedirs(temp_dir, exist_ok=True)
+        path_video_download = os.path.join(f'{temp_path}/{filename}')
+        
+        download_video(f'{task.id}/{filename}', path_video_download)
+        
+        #video_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(id_task))
+        #file_path = os.path.join(video_directory, filename)
+        
+        if os.path.exists(path_video_download):
+            return send_from_directory(temp_path, filename)
         else:
             return jsonify({"mensaje": f"El archivo de video no se encontró o no ha sido procesado para la tarea '{id_task}'."}), 404
         
@@ -253,3 +260,19 @@ def obtener_ip_externa():
             return ip_externa
     except Exception as e:
         return None
+
+def upload_video(source_file_path, destination_blob_name):
+    client = storage.Client()
+    bucket = client.bucket(os.environ.get('BUCKET_NAME'))
+    blob = bucket.blob(f'/videos/'destination_blob_name')
+
+    blob.upload_from_filename(source_file_path)
+    print(f'Video {source_file_path} subido a {destination_blob_name} en el bucket {bucket_name}.')
+    
+def download_video(source_blob_name, destination_file_path):
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(f'/videos/{source_blob_name}')
+
+    blob.download_to_filename(destination_file_path)
+    print(f'Video {source_blob_name} descargado a {destination_file_path}.')

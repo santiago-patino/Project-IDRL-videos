@@ -14,6 +14,7 @@ import imageio
 
 celery_app = Celery('task', broker='redis://localhost:6379/0')
 #celery_app = Celery('task', broker='redis://redis:6379/0')
+bucket_name = os.environ.get('BUCKET_NAME')
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):
@@ -23,10 +24,17 @@ def editar_video(task_id):
     
     if task:
         filename = task.nombre_video
-        original_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', filename)
-        print(original_file_path)
-        directory = os.path.dirname(original_file_path)
-        print(directory)
+        #original_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', filename)
+        #original_file_path = os.path.join(f'{str(task_id)}', filename)
+        #print(original_file_path)
+        
+        temp_path = os.path.join(f'/tmp/{str(task_id)}'
+        os.makedirs(temp_dir, exist_ok=True)
+        path_video_download = os.path.join(f'{temp_path}/{task.filename}')
+        
+        download_video(original_file_path, path_video_download)
+        directory = os.path.dirname(path_video_download)
+        
         if os.path.exists(directory):
             image_path = "../images/logo.png"
             video_clip = VideoFileClip(original_file_path)
@@ -50,19 +58,40 @@ def editar_video(task_id):
             final_video = concatenate_videoclips([image_logo, cropped_video, image_logo])
                 
             new_file_name = f"edited_{filename}"
-            edited_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', new_file_name)
-                
+            #edited_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', new_file_name)
+            edited_file_path = os.path.join(temp_path, new_file_name)
+            
             final_video.write_videofile(edited_file_path, fps=cropped_video.fps, codec='libx264')
+            upload_video(edited_file_path, os.path.join(str(new_task.id) + new_file_name));
             
             task.status = "processed"
-            #new_video_url = f"http://35.209.36.54:5001/api/video/{str(task.id)}"
-            #new_video_url = "http://"+ os.environ.get('TASKS_MICROSERVICE') +":5001/api/video/"+str(task.id)
-            #task.url_video = new_video_url
             
             db.session.commit()
     
         else:
             print(f"Directorio no existe: {task_id}")
+            
+def download_video(source_blob_name, destination_file_path):
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(f'/videos/{source_blob_name}')
+
+    blob.download_to_filename(destination_file_path)
+    print(f'Video {source_blob_name} descargado a {destination_file_path}.')
+    return True
+            
+def upload_video(source_file_path, destination_blob_name):
+
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(f'/videos/'destination_blob_name')
+
+    blob.upload_from_filename(source_file_path)
+    print(f'Video {source_file_path} subido a {destination_blob_name} en el bucket {bucket_name}.')
+    
+    if os.path.exists(source_file_path):
+        os.remove(source_file_path)
+    
         
         
     
