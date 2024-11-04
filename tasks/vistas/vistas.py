@@ -294,6 +294,14 @@ def download_video(source_blob_name, destination_file_path):
 def delete_video(id_task):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(f'videos/{id_task}/')
-    blob.delete()
-    print(f'Tarea {id_task} eliminado del bucket')
+    #blob = bucket.blob(f'videos/{id_task}/')
+    blobs = bucket.list_blobs(prefix=f'videos/{id_task}/')
+    
+    num_deleted = 0
+    
+    for blob in blobs:
+        blob.delete()
+        print(f'Archivo {blob.name} eliminado del bucket {bucket_name}.')
+        num_deleted += 1
+    
+    print(f'Se eliminaron {num_deleted} archivos del directorio "videos/{id_task}/" en el bucket {bucket_name}.')
