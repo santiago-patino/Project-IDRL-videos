@@ -1,4 +1,4 @@
-from flask import request, current_app, jsonify, send_from_directory
+from flask import after_this_request, request, current_app, jsonify, send_from_directory
 from modelos import db, Task, TaskSchema
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
@@ -174,14 +174,15 @@ class VistaTask(Resource):
         if task.status == "processed":
             db.session.delete(task)
             db.session.commit()
-        
-            directory_task_files = os.path.join(current_app.config["UPLOAD_FOLDER"], str(task.id))
-        
-            if os.path.exists(directory_task_files):
-                # Eliminar la carpeta y su contenido
-                shutil.rmtree(directory_task_files)
-        
-            return {"mensaje": f"Task {task.id} eliminada"}, 200
+                
+            try:
+               delete_video(str(task.id))
+               return {"mensaje": f"Task {task.id} eliminada"}, 200
+            except NotFound:
+               return {"mensaje": f"No se encontró el video en el bucket para la tarea {task.id}."}, 404 
+            except Exception as e:
+               return {"mensaje": f"Ocurrió un error al intentar eliminar la tarea {task.id}: {str(e)}"}, 500
+           
         else:
             return {"mensaje": f"Task {task.id} aun no ha sido procesada"}, 200
         
@@ -240,11 +241,19 @@ class VistaVideo(Resource):
         
         download_video(f'{task.id}/{filename}', path_video_download)
         
-        #video_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(id_task))
-        #file_path = os.path.join(video_directory, filename)
-        
         if os.path.exists(path_video_download):
+            
+            @after_this_request
+            def remove_file(response):
+                try:
+                    os.remove(path_video_download)
+                    print(f"Archivo {filename} eliminado después de la descarga.")
+                except Exception as e:
+                    print(f"Error al eliminar el archivo {filename}: {e}")
+                return response
+            
             return send_from_directory(temp_path, filename)
+        
         else:
             return jsonify({"mensaje": f"El archivo de video no se encontró o no ha sido procesado para la tarea '{id_task}'."}), 404
         
@@ -283,6 +292,9 @@ def download_video(source_blob_name, destination_file_path):
     blob.download_to_filename(destination_file_path)
     print(f'Video {source_blob_name} descargado a {destination_file_path}.')
     
-    if os.path.exists(destination_file_path):
-        os.remove(destination_file_path)
-        print(f'Video {destination_file_path} fue eliminado de la ruta temporal.')
+def delete_video(id_task):
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(f'videos/{id_task}')
+    blob.delete()
+    print(f'Tarea {id_task} eliminado del bucket')
