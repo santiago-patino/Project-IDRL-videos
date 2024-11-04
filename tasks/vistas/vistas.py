@@ -306,6 +306,6 @@ def delete_video(id_task):
     
     print(f'Se eliminaron {num_deleted} archivos del directorio "videos/{id_task}/" en el bucket {bucket_name}.')
     
-    directory_blob = bucket.blob(f'videos/{id_task}/')
+    directory_blob = bucket.blob(f'videos/{id_task}')
     directory_blob.delete()
     print(f'Directorio "videos/{id_task}/" eliminado del bucket {bucket_name}.')
