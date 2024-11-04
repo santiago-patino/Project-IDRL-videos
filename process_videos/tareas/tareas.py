@@ -92,6 +92,7 @@ def upload_video(source_file_path, destination_blob_name):
     
     if os.path.exists(source_file_path):
         os.remove(source_file_path)
+        print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
     
         
         

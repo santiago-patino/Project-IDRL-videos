@@ -271,6 +271,10 @@ def upload_video(source_file_path, destination_blob_name):
     blob.upload_from_filename(source_file_path)
     print(f'Video {source_file_path} subido a {destination_blob_name} en el bucket {bucket_name}.')
     
+    if os.path.exists(source_file_path):
+        os.remove(source_file_path)
+        print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
+    
 def download_video(source_blob_name, destination_file_path):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
@@ -278,3 +282,7 @@ def download_video(source_blob_name, destination_file_path):
 
     blob.download_to_filename(destination_file_path)
     print(f'Video {source_blob_name} descargado a {destination_file_path}.')
+    
+    if os.path.exists(destination_file_path):
+        os.remove(destination_file_path)
+        print(f'Video {destination_file_path} fue eliminado de la ruta temporal.')
