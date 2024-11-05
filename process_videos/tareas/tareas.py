@@ -59,7 +59,6 @@ def editar_video(task_id):
             final_video = concatenate_videoclips([image_logo, cropped_video, image_logo])
                 
             new_file_name = f"edited_{filename}"
-            #edited_file_path = os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(task_id)}', new_file_name)
             edited_file_path = os.path.join(temp_path, new_file_name)
             
             final_video.write_videofile(edited_file_path, fps=cropped_video.fps, codec='libx264')

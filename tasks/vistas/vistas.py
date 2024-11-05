@@ -103,15 +103,9 @@ class VistaTasks(Resource):
                 os.remove(temp_file_path)
                 return {'error': str(e)}, 400  
             
-        # Crear el directorio para guardar el archivo, si no existe
-        upload_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], str(new_task.id))
-        os.makedirs(upload_directory, exist_ok=True)  # Crea el directorio si no existe
-            
         filename = secure_filename(file.filename)
             
-        #final_file_path = os.path.join(os.path.join(f'{current_app.config["UPLOAD_FOLDER"]}/{str(new_task.id)}', filename))
         upload_video(temp_file_path, f'{str(new_task.id)}/{filename}');
-        #shutil.move(temp_file_path, final_file_path)
             
         new_task.nombre_video = filename
         db.session.commit()
@@ -120,11 +114,10 @@ class VistaTasks(Resource):
         args = (new_task.id,)
         editar_video.apply_async(args, persistent=True)
         
-        ip_tasks_microservice = obtener_ip_externa()
-        if ip_tasks_microservice is not None:
-            new_video_url = "http://"+ ip_tasks_microservice +":5001/api/video/"+str(new_task.id)
-            new_task.url_video = new_video_url
-            db.session.commit()
+        ip_load_balancer = os.environ.get('LB_WEB')
+        new_video_url = "http://"+ ip_load_balancer +":5000/api/video/"+str(new_task.id)
+        new_task.url_video = new_video_url
+        db.session.commit()
     
         return {
             'message': f'Tarea {new_task.id} creada exitosamente',
