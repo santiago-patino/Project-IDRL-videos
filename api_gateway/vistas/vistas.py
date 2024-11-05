@@ -1,4 +1,4 @@
-from flask import request
+from flask import after_this_request, jsonify, request, send_from_directory
 from modelos import db, User, UserSchema, Task
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
@@ -9,11 +9,14 @@ from os import environ
 import requests
 import json
 import math
+import os
+from google.cloud import storage
 
 # Instancia del esquema
 user_schema = UserSchema()
 #tasks_url = 'http://tasks:5001/'
 tasks_url = 'http://localhost:5001/'
+bucket_name = os.environ.get('BUCKET_NAME')
 
 
 def validar_contrasena(contrasena):
@@ -247,8 +250,44 @@ class VistaWorkers(Resource):
             result["queue_tasks"] = started_tasks
         
         return result, 200
+    
+class VistaVideo(Resource):
+    
+    def get(self, id_task):
+        task = Task.query.get(id_task)
+        
+        if task is None:
+            return {"message": "Video no encontrado"}, 404
+        
+        filename = f"edited_{task.nombre_video}"
+        
+        temp_path = f'/tmp/{str(task.id)}'
+        os.makedirs(temp_path, exist_ok=True)
+        path_video_download = f'{temp_path}/{filename}'
+        
+        download_video(f'{task.id}/{filename}', path_video_download)
+        
+        if os.path.exists(path_video_download):
+            
+            @after_this_request
+            def remove_file(response):
+                try:
+                    os.remove(path_video_download)
+                    print(f"Archivo {filename} eliminado después de la descarga.")
+                except Exception as e:
+                    print(f"Error al eliminar el archivo {filename}: {e}")
+                return response
+            
+            return send_from_directory(temp_path, filename)
+        
+        else:
+            return jsonify({"mensaje": f"El archivo de video no se encontró o no ha sido procesado para la tarea '{id_task}'."}), 404
         
         
-    
-       
-    
+def download_video(source_blob_name, destination_file_path):
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(f'videos/{source_blob_name}')
+
+    blob.download_to_filename(destination_file_path)
+    print(f'Video {source_blob_name} descargado a {destination_file_path}.')
