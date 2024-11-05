@@ -5,7 +5,7 @@ sys.path.append(ruta_modelos)
 
 from flask import Flask
 from flask_restful import Api
-from vistas import VistaRegistro, VistaLogin, VistaTasks, VistaTask, VistaVideos, VistaWorkers
+from vistas import VistaRegistro, VistaLogin, VistaTasks, VistaTask, VistaVideos, VistaWorkers, VistaVideo
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 
@@ -42,6 +42,7 @@ api.add_resource(VistaTasks, '/api/tasks')
 api.add_resource(VistaTask, '/api/tasks/<int:id_task>')
 api.add_resource(VistaVideos, '/api/videos')
 api.add_resource(VistaWorkers, '/api/workers')
+api.add_resource(VistaVideo, '/api/video/<int:id_task>')
 
 jwt = JWTManager(app)
     
