@@ -11,7 +11,7 @@ from moviepy.editor import VideoFileClip
 import shutil
 import pytz
 import urllib.request
-from google.cloud import storage
+from google.cloud import storage, pubsub_v1
 
 # Lista de tipos MIME válidos para videos
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
@@ -19,6 +19,11 @@ ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 #celery_app = Celery('task', broker=f'redis://{config['DB_URL']}:6379/0')
 celery_app = Celery('task', broker='redis://' + str(os.environ.get('REDIS_SERVER')) + ':6379/0')
 bucket_name = os.environ.get('BUCKET_NAME')
+
+project_id = os.environ.get('GOOGLE_PROJECT')
+topic_id = os.environ.get('PUB_SUB_TOPIC')
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(project_id, topic_id)
 
 @celery_app.task(name="process.video")
 def editar_video(task_id):
@@ -111,8 +116,9 @@ class VistaTasks(Resource):
         db.session.commit()
         
         #Enviar cola
-        args = (new_task.id,)
-        editar_video.apply_async(args, persistent=True)
+        #args = (new_task.id,)
+        #editar_video.apply_async(args, persistent=True)
+        publish_task(new_task.id)
         
         ip_load_balancer = os.environ.get('LB_WEB')
         new_video_url = "http://"+ ip_load_balancer +":5000/api/video/"+str(new_task.id)
@@ -298,3 +304,14 @@ def delete_video(id_task):
         num_deleted += 1
     
     print(f'Se eliminaron {num_deleted} archivos del directorio "videos/{id_task}/" en el bucket {bucket_name}.')
+    
+def publish_task(task_id):
+    # Publica el mensaje con el ID de la tarea
+    data = str(task_id).encode("utf-8")
+    future = publisher.publish(topic_path, data)
+    
+    try:
+        message_id = future.result()  # Espera a que se complete la publicación
+        print(f"Mensaje publicado exitosamente con ID: {message_id}")
+    except Exception as e:
+        print(f"Ocurrió un error al publicar el mensaje: {e}")

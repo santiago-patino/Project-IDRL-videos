@@ -11,13 +11,27 @@ from flask import current_app
 from werkzeug.utils import secure_filename
 from moviepy.editor import VideoFileClip, ImageClip, concatenate_videoclips, CompositeVideoClip
 import imageio
-from google.cloud import storage
+from google.cloud import storage, pubsub_v1
 
 celery_app = Celery('task', broker='redis://localhost:6379/0')
-#celery_app = Celery('task', broker='redis://redis:6379/0')
 bucket_name = os.environ.get('BUCKET_NAME')
 
-@celery_app.task(name="process.video")
+def listen_to_pubsub():
+    subscriber = pubsub_v1.SubscriberClient()
+    subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
+
+    streaming_pull_future = subscriber.subscribe(subscription_path, callback=editar_video)
+    try:
+        streaming_pull_future.result()
+    except Exception as e:
+        streaming_pull_future.cancel()
+        print(f"Listening stopped due to error: {e}")
+        
+def callback(message):
+    task_id = int(message.data.decode("utf-8"))
+    editar_video(task_id)
+    message.ack()
+
 def editar_video(task_id):
     print(f'task id: {task_id} queue recibida!!!!!')
     
@@ -70,6 +84,8 @@ def editar_video(task_id):
     
         else:
             print(f"Directorio no existe: {task_id}")
+    else:
+        print(f"Tarea con id {task_id} no encontrada")
             
 def download_video(source_blob_name, destination_file_path):
     client = storage.Client()
