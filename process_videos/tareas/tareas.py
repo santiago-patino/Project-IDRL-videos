@@ -20,12 +20,14 @@ def listen_to_pubsub():
     subscriber = pubsub_v1.SubscriberClient()
     subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
 
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=editar_video)
+    streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
     try:
         streaming_pull_future.result()
     except Exception as e:
         streaming_pull_future.cancel()
         print(f"Listening stopped due to error: {e}")
+        
+listen_to_pubsub()
         
 def callback(message):
     task_id = int(message.data.decode("utf-8"))
@@ -110,9 +112,7 @@ def upload_video(source_file_path, destination_blob_name):
         os.remove(source_file_path)
         print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
     
-        
-if __name__ == "__main__":
-    listen_to_pubsub()
+    
     
     
     
