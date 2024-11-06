@@ -32,6 +32,7 @@ def callback(message):
     editar_video(task_id)
     message.ack()
 
+# @celery_app.task(name="process.video")
 def editar_video(task_id):
     print(f'task id: {task_id} queue recibida!!!!!')
     
