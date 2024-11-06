@@ -16,8 +16,7 @@ from google.cloud import storage, pubsub_v1
 # Lista de tipos MIME válidos para videos
 ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 
-#celery_app = Celery('task', broker=f'redis://{config['DB_URL']}:6379/0')
-celery_app = Celery('task', broker='redis://' + str(os.environ.get('REDIS_SERVER')) + ':6379/0')
+#celery_app = Celery('task', broker='redis://' + str(os.environ.get('REDIS_SERVER')) + ':6379/0')
 bucket_name = os.environ.get('BUCKET_NAME')
 
 project_id = os.environ.get('GOOGLE_PROJECT')
@@ -25,9 +24,9 @@ topic_id = os.environ.get('PUB_SUB_TOPIC')
 publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, topic_id)
 
-@celery_app.task(name="process.video")
-def editar_video(task_id):
-    pass
+# @celery_app.task(name="process.video")
+# def editar_video(task_id):
+#     pass
 
 task_schema = TaskSchema()
 

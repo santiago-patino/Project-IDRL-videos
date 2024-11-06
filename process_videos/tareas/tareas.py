@@ -13,7 +13,7 @@ from moviepy.editor import VideoFileClip, ImageClip, concatenate_videoclips, Com
 import imageio
 from google.cloud import storage, pubsub_v1
 
-celery_app = Celery('task', broker='redis://localhost:6379/0')
+#celery_app = Celery('task', broker='redis://localhost:6379/0')
 bucket_name = os.environ.get('BUCKET_NAME')
 
 def listen_to_pubsub():
