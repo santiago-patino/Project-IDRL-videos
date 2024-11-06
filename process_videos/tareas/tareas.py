@@ -111,8 +111,8 @@ def upload_video(source_file_path, destination_blob_name):
         print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
     
         
-        
-    
+if __name__ == "__main__":
+    listen_to_pubsub()
     
     
     
