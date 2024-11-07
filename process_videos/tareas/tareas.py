@@ -5,7 +5,6 @@ sys.path.append(ruta_modelos)
 
 #from celery import Celery
 from modelos import db, Task
-from app import app
 import requests
 from flask import current_app
 from werkzeug.utils import secure_filename
