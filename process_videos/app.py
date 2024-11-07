@@ -1,5 +1,10 @@
+import sys
+import os
+ruta_modelos = os.path.join(os.path.dirname(__file__), '../modelos')
+sys.path.append(ruta_modelos)
+
 from flask import Flask
-#from modelos import db
+from modelos import db
 from os import environ
 from dotenv import load_dotenv
 import threading
@@ -20,6 +25,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 def iniciar_suscriptor():
     app_context = app.app_context()
     app_context.push()
+    db.init_app(app)
     
     thread = threading.Thread(target=iniciar_suscripcion, args=(app_context,))
     thread.start()
