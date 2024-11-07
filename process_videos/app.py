@@ -36,10 +36,10 @@ def editar_video(task_id):
     
     print(f'task id: {task_id} queue recibida!!!!!')
     
-    with app.app_context():
     
-        task = Task.query.get(task_id)
-        if task:
+    
+    task = Task.query.get(task_id)
+    if task:
             filename = task.nombre_video
             original_file_path = os.path.join(str(task_id), filename)
             #original_file_path = os.path.join(f'{str(task_id)}', filename)
@@ -85,7 +85,7 @@ def editar_video(task_id):
                 db.session.commit()
             else:
                 print(f"Directorio no existe: {task_id}")
-        else:
+    else:
             print(f"Tarea con id {task_id} no encontrada")
             
 def download_video(source_blob_name, destination_file_path):
