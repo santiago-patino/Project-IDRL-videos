@@ -16,6 +16,11 @@ from google.cloud import storage, pubsub_v1
 #celery_app = Celery('task', broker='redis://localhost:6379/0')
 bucket_name = os.environ.get('BUCKET_NAME')
 
+def callback(message):
+    task_id = int(message.data.decode("utf-8"))
+    editar_video(task_id)
+    message.ack()
+    
 def listen_to_pubsub():
     subscriber = pubsub_v1.SubscriberClient()
     #subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
@@ -33,10 +38,6 @@ def listen_to_pubsub():
         
 listen_to_pubsub()
         
-def callback(message):
-    task_id = int(message.data.decode("utf-8"))
-    editar_video(task_id)
-    message.ack()
 
 # @celery_app.task(name="process.video")
 def editar_video(task_id):
