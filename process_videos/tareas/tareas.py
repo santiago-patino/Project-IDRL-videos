@@ -23,13 +23,12 @@ def callback(message, app_context):
     # Usa el contexto de la aplicación Flask explícitamente
     with app_context:
         print("Mensaje recibido:", message.data.decode('utf-8'))
-        editar_video(message.data.decode('utf-8'))
+        editar_video(int(message.data.decode('utf-8')))
         # Procesa el mensaje como sea necesario
         message.ack()    
 
 # @celery_app.task(name="process.video")
-def editar_video(message):
-    task_id = message.data.decode("utf-8")
+def editar_video(task_id):
     
     print(f'task id: {task_id} queue recibida!!!!!')
     
