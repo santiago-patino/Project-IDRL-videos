@@ -18,7 +18,11 @@ bucket_name = os.environ.get('BUCKET_NAME')
 
 def listen_to_pubsub():
     subscriber = pubsub_v1.SubscriberClient()
-    subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
+    #subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
+    
+    project_id = os.environ.get('GOOGLE_PROJECT')
+    sub_id = os.environ.get('SUB_ID')
+    subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
 
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
     try:

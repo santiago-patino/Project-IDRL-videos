@@ -20,9 +20,10 @@ ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']
 bucket_name = os.environ.get('BUCKET_NAME')
 
 project_id = os.environ.get('GOOGLE_PROJECT')
-topic_id = os.environ.get('PUB_SUB_TOPIC')
+topic_id = os.environ.get('TOPIC_ID')
 publisher = pubsub_v1.PublisherClient()
-topic_path = publisher.topic_path(project_id, topic_id)
+#topic_path = publisher.topic_path(project_id, topic_id)
+topic_path = f'projects/{project_id}/topics/{topic_id}'
 
 # @celery_app.task(name="process.video")
 # def editar_video(task_id):
