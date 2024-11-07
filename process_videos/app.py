@@ -1,11 +1,11 @@
 from flask import Flask
-from modelos import db
+#from modelos import db
 from os import environ
 import os
 
 from dotenv import load_dotenv
 
-from tareas import listen_to_pubsub
+import tareas
 
 load_dotenv()
 
@@ -18,9 +18,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app_context = app.app_context()
 app_context.push()
 
-db.init_app(app)
+#db.init_app(app)
 
-listen_to_pubsub()
+tareas.listen_to_pubsub()
 
 
 
