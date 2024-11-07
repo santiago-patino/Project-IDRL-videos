@@ -9,16 +9,25 @@ from tareas import listen_to_pubsub
 
 load_dotenv()
 
-app = Flask(__name__)
+def create_app(config_class="config.Config"):
+    app = Flask(__name__)
+    
+    # Cargar configuración desde las variables de entorno o archivo .env
+    app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # Inicializa aquí cualquier extensión de Flask, si es necesario
+    # db.init_app(app)
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:1234@flask_db:5432/flask_database"
-app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    return app
 
-app_context = app.app_context()
-app_context.push()
+#app_context = app.app_context()
+#app_context.push()
 
-listen_to_pubsub()
+app = create_app()
+
+with app.app_context():
+    listen_to_pubsub()
 
 #db.init_app(app)
 
