@@ -2,8 +2,9 @@ from flask import Flask
 #from modelos import db
 from os import environ
 from dotenv import load_dotenv
+import threading
 
-from tareas import listen_to_pubsub
+from tareas import iniciar_suscripcion
 
 load_dotenv()
 
@@ -13,12 +14,16 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-app_context = app.app_context()
-app_context.push()
+#app_context = app.app_context()
+#app_context.push()
+
+def iniciar_suscriptor():
+    thread = threading.Thread(target=iniciar_suscripcion)
+    thread.start()
 
 #db.init_app(app)
 
-listen_to_pubsub()
+iniciar_suscripcion()
 
 
 

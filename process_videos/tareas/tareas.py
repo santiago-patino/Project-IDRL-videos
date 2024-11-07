@@ -15,11 +15,18 @@ from google.cloud import storage, pubsub_v1
 
 #celery_app = Celery('task', broker='redis://localhost:6379/0')
 bucket_name = os.environ.get('BUCKET_NAME')
+subscriber = pubsub_v1.SubscriberClient()
+project_id = os.environ.get('GOOGLE_PROJECT')
+sub_id = os.environ.get('SUB_ID')
+subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
 
-# def callback(message):
-#     task_id = int(message.data.decode("utf-8"))
-#     editar_video(task_id)
-#     message.ack()    
+def callback(message):
+    # Usa el contexto de la aplicación Flask explícitamente
+    with app.app_context():
+        print("Mensaje recibido:", message.data.decode('utf-8'))
+        editar_video(message.data.decode('utf-8'))
+        # Procesa el mensaje como sea necesario
+        message.ack()    
 
 # @celery_app.task(name="process.video")
 def editar_video(message):
@@ -27,10 +34,8 @@ def editar_video(message):
     
     print(f'task id: {task_id} queue recibida!!!!!')
     
-    with app.app_context():
-    
-        task = Task.query.get(task_id)
-        if task:
+    task = Task.query.get(task_id)
+    if task:
             filename = task.nombre_video
             original_file_path = os.path.join(str(task_id), filename)
             #original_file_path = os.path.join(f'{str(task_id)}', filename)
@@ -76,9 +81,9 @@ def editar_video(message):
                 db.session.commit()
             else:
                 print(f"Directorio no existe: {task_id}")
-        else:
+    else:
             print(f"Tarea con id {task_id} no encontrada")
-        message.ack()
+    message.ack()
     
     
             
@@ -104,17 +109,10 @@ def upload_video(source_file_path, destination_blob_name):
         os.remove(source_file_path)
         print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
     
-def listen_to_pubsub():
-    subscriber = pubsub_v1.SubscriberClient()
-    project_id = os.environ.get('GOOGLE_PROJECT')
-    sub_id = os.environ.get('SUB_ID')
-    subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=editar_video)
-    try:
-        streaming_pull_future.result()
-    except Exception as e:
-        streaming_pull_future.cancel()
-        print(f"Listening stopped due to error: {e}")
+def iniciar_suscripcion():
+    # Inicia el suscriptor
+    subscriber.subscribe(subscription_path, callback=callback)
+    print("Suscriptor de Pub/Sub está escuchando mensajes...")
         
 #listen_to_pubsub()
     
