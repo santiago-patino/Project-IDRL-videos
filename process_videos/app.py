@@ -1,6 +1,6 @@
 import sys
 import os
-ruta_modelos = os.path.join(os.path.dirname(__file__), '../../modelos')
+ruta_modelos = os.path.join(os.path.dirname(__file__), '../modelos')
 sys.path.append(ruta_modelos)
 
 from flask import Flask
