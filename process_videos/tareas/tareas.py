@@ -5,7 +5,7 @@ sys.path.append(ruta_modelos)
 
 #from celery import Celery
 from modelos import db, Task
-import app
+from app import app
 import requests
 from flask import current_app
 from werkzeug.utils import secure_filename
@@ -27,7 +27,7 @@ def editar_video(message):
     
     print(f'task id: {task_id} queue recibida!!!!!')
     
-    with current_app.app_context():
+    with app.app_context():
     
         task = Task.query.get(task_id)
         if task:
