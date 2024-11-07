@@ -19,25 +19,7 @@ bucket_name = os.environ.get('BUCKET_NAME')
 # def callback(message):
 #     task_id = int(message.data.decode("utf-8"))
 #     editar_video(task_id)
-#     message.ack()
-    
-def listen_to_pubsub():
-    subscriber = pubsub_v1.SubscriberClient()
-    #subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
-    
-    project_id = os.environ.get('GOOGLE_PROJECT')
-    sub_id = os.environ.get('SUB_ID')
-    subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
-
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=editar_video)
-    try:
-        streaming_pull_future.result()
-    except Exception as e:
-        streaming_pull_future.cancel()
-        print(f"Listening stopped due to error: {e}")
-        
-listen_to_pubsub()
-        
+#     message.ack()    
 
 # @celery_app.task(name="process.video")
 def editar_video(message):
@@ -119,7 +101,22 @@ def upload_video(source_file_path, destination_blob_name):
         os.remove(source_file_path)
         print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
     
+def listen_to_pubsub():
+    subscriber = pubsub_v1.SubscriberClient()
+    #subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
     
+    project_id = os.environ.get('GOOGLE_PROJECT')
+    sub_id = os.environ.get('SUB_ID')
+    subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
+
+    streaming_pull_future = subscriber.subscribe(subscription_path, callback=editar_video)
+    try:
+        streaming_pull_future.result()
+    except Exception as e:
+        streaming_pull_future.cancel()
+        print(f"Listening stopped due to error: {e}")
+        
+listen_to_pubsub()
     
     
     
