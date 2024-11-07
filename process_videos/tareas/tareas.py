@@ -23,7 +23,7 @@ bucket_name = os.environ.get('BUCKET_NAME')
 
 # @celery_app.task(name="process.video")
 def editar_video(message):
-    task_id = int(message.data.decode("utf-8"))
+    task_id = message.data.decode("utf-8")
     
     print(f'task id: {task_id} queue recibida!!!!!')
     
