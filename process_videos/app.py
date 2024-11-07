@@ -27,8 +27,10 @@ def iniciar_suscriptor():
     app_context.push()
     db.init_app(app)
     
-    thread = threading.Thread(target=iniciar_suscripcion, args=(app_context,))
-    thread.start()
+    iniciar_suscripcion(app_context)
+    
+    #thread = threading.Thread(target=iniciar_suscripcion, args=(app_context,))
+    #thread.start()
 
 #db.init_app(app)
 
