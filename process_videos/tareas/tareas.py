@@ -118,7 +118,7 @@ def listen_to_pubsub():
         streaming_pull_future.cancel()
         print(f"Listening stopped due to error: {e}")
         
-listen_to_pubsub()
+#listen_to_pubsub()
     
     
     
