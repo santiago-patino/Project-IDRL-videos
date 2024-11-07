@@ -18,7 +18,7 @@ app_context.push()
 
 #db.init_app(app)
 
-listen_to_pubsub
+listen_to_pubsub()
 
 
 
