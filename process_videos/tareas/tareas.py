@@ -33,7 +33,7 @@ def editar_video(task_id):
     print(f'task id: {task_id} queue recibida!!!!!')
     
     task = Task.query.get(task_id)
-    if task:
+    if task and task.status != "processed":
             filename = task.nombre_video
             original_file_path = os.path.join(str(task_id), filename)
             #original_file_path = os.path.join(f'{str(task_id)}', filename)
@@ -81,7 +81,6 @@ def editar_video(task_id):
                 print(f"Directorio no existe: {task_id}")
     else:
             print(f"Tarea con id {task_id} no encontrada")
-    message.ack()
     
     
             
