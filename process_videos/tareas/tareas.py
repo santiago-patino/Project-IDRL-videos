@@ -22,8 +22,8 @@ bucket_name = os.environ.get('BUCKET_NAME')
 #     message.ack()    
 
 # @celery_app.task(name="process.video")
-def editar_video(message):
-    task_id = message.data.decode("utf-8")
+def editar_video(task_id):
+    #task_id = message.data.decode("utf-8")
     
     print(f'task id: {task_id} queue recibida!!!!!')
     
@@ -106,18 +106,26 @@ def upload_video(source_file_path, destination_blob_name):
     
 def listen_to_pubsub():
     subscriber = pubsub_v1.SubscriberClient()
-    #subscription_path = subscriber.subscription_path(os.environ.get('GOOGLE_PROJECT'), os.environ.get('PUB_SUB_TOPIC'))
-    
     project_id = os.environ.get('GOOGLE_PROJECT')
     sub_id = os.environ.get('SUB_ID')
     subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
-
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=editar_video)
-    try:
-        streaming_pull_future.result()
-    except Exception as e:
-        streaming_pull_future.cancel()
-        print(f"Listening stopped due to error: {e}")
+    
+    def callback(message):
+        try:
+            # Llamar a la función que edita el video dentro del contexto de la app
+            with current_app.app_context():
+                # Aquí puedes agregar cualquier lógica relacionada con la edición del video
+                editar_video(message.data.decode("utf-8"))
+            message.ack()
+        except Exception as e:
+            message.nack()
+    
+    #streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+    subscriber.subscribe(subscription_path, callback=callback)
+    
+    while True:
+        pass
+    
         
 #listen_to_pubsub()
     
