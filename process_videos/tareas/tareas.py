@@ -21,7 +21,7 @@ subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
 
 def callback(message, app_context):
     # Usa el contexto de la aplicación Flask explícitamente
-    with app_context():
+    with app_context:
         print("Mensaje recibido:", message.data.decode('utf-8'))
         editar_video(message.data.decode('utf-8'))
         # Procesa el mensaje como sea necesario
