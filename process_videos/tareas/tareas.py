@@ -78,7 +78,6 @@ def editar_video(task_id):
                 print(f"Directorio no existe: {task_id}")
         else:
             print(f"Tarea con id {task_id} no encontrada")
-        message.ack()
     
     
             

@@ -15,31 +15,30 @@ from moviepy.editor import VideoFileClip, ImageClip, concatenate_videoclips, Com
 import imageio
 from google.cloud import storage, pubsub_v1
 
+import threading
+
 load_dotenv()
 
 app = Flask(__name__)
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:1234@flask_db:5432/flask_database"
-app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Flask App Context
 app_context = app.app_context()
 app_context.push()
 
-#db.init_app(app)
+bucket_name = os.environ.get('BUCKET_NAME')
 
-bucket_name = os.environ.get('BUCKET_NAME')  
-
-# @celery_app.task(name="process.video")
 def editar_video(task_id):
     #task_id = message.data.decode("utf-8")
     
     print(f'task id: {task_id} queue recibida!!!!!')
     
+    with current_app.app_context():
     
-    
-    task = Task.query.get(task_id)
-    if task:
+        task = Task.query.get(task_id)
+        if task:
             filename = task.nombre_video
             original_file_path = os.path.join(str(task_id), filename)
             #original_file_path = os.path.join(f'{str(task_id)}', filename)
@@ -85,9 +84,9 @@ def editar_video(task_id):
                 db.session.commit()
             else:
                 print(f"Directorio no existe: {task_id}")
-    else:
+        else:
             print(f"Tarea con id {task_id} no encontrada")
-            
+
 def download_video(source_blob_name, destination_file_path):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
@@ -96,7 +95,7 @@ def download_video(source_blob_name, destination_file_path):
     blob.download_to_filename(destination_file_path)
     print(f'Video {source_blob_name} descargado a {destination_file_path}.')
     return True
-            
+    
 def upload_video(source_file_path, destination_blob_name):
 
     client = storage.Client()
@@ -109,35 +108,37 @@ def upload_video(source_file_path, destination_blob_name):
     if os.path.exists(source_file_path):
         os.remove(source_file_path)
         print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
-    
+
 def listen_to_pubsub():
     subscriber = pubsub_v1.SubscriberClient()
     project_id = os.environ.get('GOOGLE_PROJECT')
     sub_id = os.environ.get('SUB_ID')
     subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
-    
+
     def callback(message):
         try:
-            # Llamar a la función que edita el video dentro del contexto de la app
             with app.app_context():
-                # Aquí puedes agregar cualquier lógica relacionada con la edición del video
                 editar_video(message.data.decode("utf-8"))
             message.ack()
         except Exception as e:
             message.nack()
-    
-    #streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    subscriber.subscribe(subscription_path, callback=callback)
-    
-    while True:
-        pass
-    
-        
-listen_to_pubsub()
-    
-    
-    
-    
+
+    streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+    print(f"Listening for messages on {subscription_path}...")
+    try:
+        streaming_pull_future.result()
+    except KeyboardInterrupt:
+        streaming_pull_future.cancel()
+
+@app.before_first_request
+def start_pubsub_listener_thread():
+    thread = threading.Thread(target=listen_to_pubsub)
+    thread.daemon = True
+    thread.start()
+    print("Pub/Sub listener started in background.")
+
+if __name__ == "__main__":
+    app.run(debug=True)
     
 
 
