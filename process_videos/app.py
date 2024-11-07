@@ -26,7 +26,7 @@ def iniciar_suscriptor():
 
 #db.init_app(app)
 
-iniciar_suscripcion()
+iniciar_suscriptor()
 
 
 
