@@ -19,9 +19,9 @@ project_id = os.environ.get('GOOGLE_PROJECT')
 sub_id = os.environ.get('SUB_ID')
 subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
 
-def callback(message):
+def callback(message, app_context):
     # Usa el contexto de la aplicación Flask explícitamente
-    with app.app_context():
+    with app_context():
         print("Mensaje recibido:", message.data.decode('utf-8'))
         editar_video(message.data.decode('utf-8'))
         # Procesa el mensaje como sea necesario
@@ -108,9 +108,13 @@ def upload_video(source_file_path, destination_blob_name):
         os.remove(source_file_path)
         print(f'Video {source_file_path} fue eliminado de la ruta temporal.')
     
-def iniciar_suscripcion():
+def iniciar_suscripcion(app_context):
+    
+    def wrapped_callback(message):
+        callback(message, app_context)
+        
     # Inicia el suscriptor
-    subscriber.subscribe(subscription_path, callback=callback)
+    subscriber.subscribe(subscription_path, callback=wrapped_callback)
     print("Suscriptor de Pub/Sub está escuchando mensajes...")
         
 #listen_to_pubsub()
