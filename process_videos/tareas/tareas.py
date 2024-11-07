@@ -22,10 +22,9 @@ subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
 def callback(message, app_context):
     # Usa el contexto de la aplicación Flask explícitamente
     with app_context:
+        message.ack() #confirma antes de editarlo    
         print("Mensaje recibido:", message.data.decode('utf-8'))
         editar_video(int(message.data.decode('utf-8')))
-        # Procesa el mensaje como sea necesario
-        message.ack()    
 
 # @celery_app.task(name="process.video")
 def editar_video(task_id):
