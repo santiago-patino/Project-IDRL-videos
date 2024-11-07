@@ -112,9 +112,9 @@ def listen_to_pubsub():
     def callback(message):
         try:
             # Llamar a la función que edita el video dentro del contexto de la app
-            with current_app.app_context():
+            #with current_app.app_context():
                 # Aquí puedes agregar cualquier lógica relacionada con la edición del video
-                editar_video(message.data.decode("utf-8"))
+            editar_video(message.data.decode("utf-8"))
             message.ack()
         except Exception as e:
             message.nack()
