@@ -111,8 +111,10 @@ def iniciar_suscripcion(app_context):
     def wrapped_callback(message):
         callback(message, app_context)
         
+    flow_control = pubsub_v1.types.FlowControl(max_messages=1)
+        
     # Inicia el suscriptor
-    subscriber.subscribe(subscription_path, callback=wrapped_callback)
+    subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
     print("Suscriptor de Pub/Sub está escuchando mensajes...")
         
 #listen_to_pubsub()
