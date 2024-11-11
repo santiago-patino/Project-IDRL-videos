@@ -79,7 +79,7 @@ def editar_video(task_id):
             else:
                 print(f"Directorio no existe: {task_id}")
     else:
-            print(f"Tarea con id {task_id} no encontrada")
+            print(f"Tarea con id {task_id} no encontrada o ya fue procesada")
     
     
             
@@ -113,8 +113,17 @@ def iniciar_suscripcion(app_context):
     flow_control = pubsub_v1.types.FlowControl(max_messages=1)
         
     # Inicia el suscriptor
-    subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
+    future = subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
     print("Suscriptor de Pub/Sub está escuchando mensajes...")
+    
+    try:
+        # Mantiene el proceso en ejecución para recibir mensajes
+        future.result(timeout=2.0)
+    except Exception as e:
+        print(f"Error: {e}")
+        future.cancel()
+    finally:
+        subscriber.close()
         
 #listen_to_pubsub()
     
