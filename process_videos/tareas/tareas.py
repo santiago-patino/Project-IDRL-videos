@@ -113,17 +113,18 @@ def iniciar_suscripcion(app_context):
     flow_control = pubsub_v1.types.FlowControl(max_messages=1)
         
     # Inicia el suscriptor
-    future = subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
+    #future = subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
+    subscriber.subscribe(subscription_path, callback=wrapped_callback)
     print("Suscriptor de Pub/Sub está escuchando mensajes...")
     
-    try:
-        # Mantiene el proceso en ejecución para recibir mensajes
-        future.result(timeout=2.0)
-    except Exception as e:
-        print(f"Error: {e}")
-        future.cancel()
-    finally:
-        subscriber.close()
+    # try:
+    #     # Mantiene el proceso en ejecución para recibir mensajes
+    #     future.result(timeout=2.0)
+    # except Exception as e:
+    #     print(f"Error: {e}")
+    #     future.cancel()
+    # finally:
+    #     subscriber.close()
         
 #listen_to_pubsub()
     
