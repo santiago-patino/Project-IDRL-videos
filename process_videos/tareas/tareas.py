@@ -114,7 +114,7 @@ def iniciar_suscripcion(app_context):
         
     # Inicia el suscriptor
     #future = subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
-    subscriber.subscribe(subscription_path, callback=wrapped_callback)
+    subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
     print("Suscriptor de Pub/Sub está escuchando mensajes...")
     
     # try:
