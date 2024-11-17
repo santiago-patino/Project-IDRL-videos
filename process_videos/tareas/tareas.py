@@ -20,13 +20,11 @@ sub_id = os.environ.get('SUB_ID')
 subscription_path = f'projects/{project_id}/subscriptions/{sub_id}'
 
 def callback(message, app_context):
-    # Usa el contexto de la aplicación Flask explícitamente
     with app_context:
         print("Mensaje recibido:", message.data.decode('utf-8'))
         editar_video(int(message.data.decode('utf-8')))
         message.ack() #confirma la tarea   
 
-# @celery_app.task(name="process.video")
 def editar_video(task_id):
     
     print(f'task id: {task_id} queue recibida!!!!!')
@@ -113,9 +111,15 @@ def iniciar_suscripcion(app_context):
     flow_control = pubsub_v1.types.FlowControl(max_messages=1)
         
     # Inicia el suscriptor
-    #future = subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
-    subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
+    future = subscriber.subscribe(subscription_path, callback=wrapped_callback, flow_control=flow_control)
     print("Suscriptor de Pub/Sub está escuchando mensajes...")
+    
+    try:
+        # Mantiene el proceso escuchando mensajes
+        future.result()
+    except KeyboardInterrupt:
+        print("Interrumpido por el usuario.")
+        future.cancel()
     
     # try:
     #     # Mantiene el proceso en ejecución para recibir mensajes
