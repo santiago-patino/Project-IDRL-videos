@@ -23,7 +23,10 @@ def callback(message, app_context):
     with app_context:
         print("Mensaje recibido:", message.data.decode('utf-8'))
         editar_video(int(message.data.decode('utf-8')))
-        message.ack() #confirma la tarea   
+        try:
+          message.ack()
+        except Exception as e:
+            print(f"General error: {e}")  
 
 def editar_video(task_id):
     
