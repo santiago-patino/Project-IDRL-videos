@@ -88,10 +88,19 @@ def download_video(source_blob_name, destination_file_path):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(f'videos/{source_blob_name}')
-
-    blob.download_to_filename(destination_file_path)
-    print(f'Video {source_blob_name} descargado a {destination_file_path}.')
-    return True
+    
+    try:
+        # Verificar si el blob existe
+        if not blob.exists():
+            print(f'El archivo "{source_blob_name}" no existe en el bucket "{bucket_name}".')
+            return False
+        
+        blob.download_to_filename(destination_file_path)
+        print(f'Video {source_blob_name} descargado a {destination_file_path}.')
+        return True
+    except Exception as e:
+        print(f'Ocurrió un error al descargar el video: {e}')
+        return False
             
 def upload_video(source_file_path, destination_blob_name):
 
