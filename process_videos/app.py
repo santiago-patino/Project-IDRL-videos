@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import threading
 import base64
 
-#from tareas import editar_video
+from tareas import editar_video
 
 load_dotenv()
 
@@ -33,7 +33,7 @@ def process_message():
     encoded_data = message['message']['data']
     decoded_data = base64.b64decode(encoded_data).decode('utf-8')
     print(decoded_data)
-    #editar_video(int(message))
+    editar_video(int(decoded_data))
     return jsonify({'status': 'Message processed'}), 200
 
 
