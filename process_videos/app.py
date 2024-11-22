@@ -9,6 +9,7 @@ from modelos import db
 from os import environ
 from dotenv import load_dotenv
 import threading
+import base64
 
 #from tareas import editar_video
 
@@ -29,7 +30,9 @@ db.init_app(app)
 def process_message():
     message = request.get_json()
     print("Mensaje recibido:", message)
-    print(message.data.decode('utf-8'))
+    encoded_data = message['message']['data']
+    decoded_data = base64.b64decode(encoded_data).decode('utf-8')
+    print(decoded_data)
     #editar_video(int(message))
     return jsonify({'status': 'Message processed'}), 200
 
