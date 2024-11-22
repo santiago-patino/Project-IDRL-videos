@@ -19,22 +19,24 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-#app_context = app.app_context()
-#app_context.push()
+app_context = app.app_context()
+app_context.push()
+db.init_app(app)
+iniciar_suscripcion(app_context)
 
-def iniciar_suscriptor():
-    app_context = app.app_context()
-    app_context.push()
-    db.init_app(app)
+# def iniciar_suscriptor():
+#     app_context = app.app_context()
+#     app_context.push()
+#     db.init_app(app)
     
-    iniciar_suscripcion(app_context)
+#     iniciar_suscripcion(app_context)
     
     #thread = threading.Thread(target=iniciar_suscripcion, args=(app_context,))
     #thread.start()
 
 #db.init_app(app)
 
-iniciar_suscriptor()
+#iniciar_suscriptor()
 
 
 
