@@ -22,7 +22,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app_context = app.app_context()
 app_context.push()
 db.init_app(app)
-iniciar_suscripcion(app_context)
+        
+thread = threading.Thread(target=iniciar_suscripcion, args=(app_context,))
+thread.start()
 
 # def iniciar_suscriptor():
 #     app_context = app.app_context()
