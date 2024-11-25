@@ -117,8 +117,8 @@ class VistaTasks(Resource):
         #Enviar cola
         publish_task(new_task.id)
         
-        ip_load_balancer = os.environ.get('LB_WEB')
-        new_video_url = "http://"+ ip_load_balancer +":5000/api/video/"+str(new_task.id)
+        web_layer_url = os.environ.get('CLOUD_RUN_WEB')
+        new_video_url = web_layer_url +"/api/video/"+str(new_task.id)
         new_task.url_video = new_video_url
         db.session.commit()
     
